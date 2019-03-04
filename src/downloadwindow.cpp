@@ -61,7 +61,7 @@ downloadwindow::~downloadwindow()
     qDebug("downloadwindow destroyed");
 }
 
-QPair<float, float> downloadwindow::getRate()
+QPair<float, float> downloadwindow::getRate() const
 {
     float dRate = 0;
     float uRate = 0;
@@ -331,29 +331,47 @@ void downloadwindow::torrentDeletedFromSession(const std::string &hash)
 void downloadwindow::redrawItemsPosition()
 {
 //    qDebug("redrawing tsuCard position");
-    p_itemsPerRow = floor(ui->graphicsView->size().width()/((tsuItem::ItemWidth + tsuItem::ItemGlowRadius) * p_transformFactor));
-    int row = -1;
-    int col = -1;
-    int itemWidth = (tsuItem::ItemGlowRadius + tsuItem::ItemWidth) * p_transformFactor;
-    int itemHeight = (tsuItem::ItemGlowRadius + tsuItem::ItemHeight) * p_transformFactor;
+
+    int itemWidth = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemWidth) * p_transformFactor);
+    int itemHeight = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemHeight) * p_transformFactor);
+
+    int newX = 0;
+    int newY = 0;
+
+    int available_width = ui->graphicsView->size().width();
+
+    // for some unknown (well, at least unknown to me) reason the scene rect is "moved" (changes it position) when
+    // doing zoom-in/zoom-out
+    // So try "to re-establish" a scene rect corresponding to the view scene rect (probably people who really know Qt can suggest a better method)
+    p_scene->setSceneRect(ui->graphicsView->sceneRect());
+
     for (int i = 0; i < p_tsulist.count(); i++) {
         tsuItem *ti = p_tsulist[i];
 
-        if (ti->get_Visibility()) {
-            if (col == p_itemsPerRow-1) { row++; col = 0; } else { col++; }
-            int newX = (col*itemWidth)+tsuItem::ItemGlowRadius;
-            int newY = (row*itemHeight)+tsuItem::ItemGlowRadius;
-//            ti->setPos(QPointF(newX, newY));
+        // skip not visible
+        if (!ti->get_Visibility()) {
+            continue;
+        }
 
-            QPropertyAnimation *a = new QPropertyAnimation(ti, "pos");
-            a->setDuration(300);
-            a->setStartValue(QPointF(ti->pos().x(), ti->pos().y()));
-            a->setEndValue(QPoint(newX, newY));
-            a->setEasingCurve(QEasingCurve::Linear);
-            a->start(QPropertyAnimation::DeleteWhenStopped);
 
+        QPropertyAnimation *a = new QPropertyAnimation(ti, "pos");
+        a->setDuration(300);
+        a->setEndValue(QPointF(newX, newY));
+
+        a->setEasingCurve(QEasingCurve::Linear);
+        a->start(QPropertyAnimation::DeleteWhenStopped);
+
+        available_width -= itemWidth;
+        if (available_width <= 0) {
+            // no more available space for this "row", so advance Y and reset X (like a CR+LF)
+            newY += itemHeight;
+            newX = 0;
+            available_width = ui->graphicsView->size().width();
+        } else {
+            newX += itemWidth;
         }
     }
+
     ui->graphicsView->ensureVisible(QRectF(0, 0, 0, 0));
 }
 

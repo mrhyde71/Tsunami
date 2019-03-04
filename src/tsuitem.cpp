@@ -4,15 +4,16 @@ const qreal tsuItem::ItemWidth = 140;
 const qreal tsuItem::ItemHeight = 190;
 const qreal tsuItem::ItemGlowRadius = 20;
 
-tsuItem::tsuItem()
-{
-    createItem();
-}
 
 tsuItem::tsuItem(const std::string &hash)
 {
     p_hash = hash;
     createItem();
+}
+
+
+tsuItem::tsuItem() : tsuItem(std::string())
+{
 }
 
 void tsuItem::createItem()
@@ -360,12 +361,12 @@ void tsuItem::set_FactorTransform(const qreal &value)
     update();
 }
 
-qreal tsuItem::get_FactorTransform()
+qreal tsuItem::get_FactorTransform() const
 {
     return p_factorTransform;
 }
 
-QString tsuItem::get_Head()
+const QString& tsuItem::get_Head() const
 {
     return p_head;
 }
@@ -385,12 +386,12 @@ void tsuItem::set_Uploaded(const int &value)
     p_uploaded = value;
 }
 
-int tsuItem::get_Downloaded()
+int tsuItem::get_Downloaded() const
 {
     return p_downloaded;
 }
 
-int tsuItem::get_Uploaded()
+int tsuItem::get_Uploaded() const
 {
     return p_uploaded;
 }

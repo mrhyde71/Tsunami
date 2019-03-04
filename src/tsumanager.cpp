@@ -661,7 +661,7 @@ void tsuManager::alertsHandler()
                 type = "udp";
             }
 //            qDebug() << QString("listen failed for %0 on port %1").arg(type).arg(lfa->port);
-            qDebug() << QString("listen succeeded for %0 on port %1").arg(type).arg(lfa->endpoint.port());
+            qDebug() << QString("listen failed for %0 on port %1").arg(type).arg(lfa->endpoint.port());
             emit listenerUpdate(type, false);
             break;
         }

@@ -35,14 +35,14 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     void set_FactorTransform(const qreal & value);
-    qreal get_FactorTransform();
-    QString get_Head();
+    qreal get_FactorTransform() const;
+    const QString& get_Head() const;
 
     void set_Size(const int & value);
     void set_Downloaded(const int & value);
     void set_Uploaded(const int & value);
-    int get_Downloaded();
-    int get_Uploaded();
+    int get_Downloaded() const;
+    int get_Uploaded() const;
 
     statusEnum get_Status() const;
     void set_Status(const int &value);
@@ -76,18 +76,18 @@ public slots:
     void emitCancel();
 
 private:
-    int p_progressValue = 0;
-    QString p_head = QString("");
-    qreal p_factorTransform = 1;
-    bool p_isFadingOut = false;
-    bool p_isFadingIn = false;
+    int p_progressValue {};
+    QString p_head;
+    qreal p_factorTransform {1};
+    bool p_isFadingOut {false};
+    bool p_isFadingIn {false};
 
-    bool p_isMoving = false;
+    bool p_isMoving {false};
 
-    QPixmap p_imageBkg = QPixmap(":/images/tsuitem/bkg.png");
-    QPixmap p_imageBkg2 = QPixmap(":/images/tsuitem/bkg2.png");
-    QPointF p_imageBkg2Position = QPointF(1, 158);
-    QPixmap p_imageExit = QPixmap(":/images/tsuitem/X.png");
+    QPixmap p_imageBkg {":/images/tsuitem/bkg.png"};
+    QPixmap p_imageBkg2 {":/images/tsuitem/bkg2.png"};
+    QPointF p_imageBkg2Position {1, 158};
+    QPixmap p_imageExit {":/images/tsuitem/X.png"};
     QPointF p_imageExitPosition = QPointF(122, 4);
     QPixmap p_imagePause = QPixmap(":/images/tsuitem/pause.png");
     QPointF p_imagePausePosition = QPointF(31, 167);
