@@ -329,16 +329,22 @@ void downloadwindow::torrentDeletedFromSession(const std::string &hash)
 }
 
 void downloadwindow::redrawItemsPosition()
-{
+{    
 //    qDebug("redrawing tsuCard position");
+
+    if (p_tsulist.empty()) {
+        // nothing to do
+        return;
+    }
 
     int itemWidth = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemWidth) * p_transformFactor);
     int itemHeight = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemHeight) * p_transformFactor);
 
-    int newX = 0;
-    int newY = 0;
+    int newX {};
+    int newY {};
 
-    int available_width = ui->graphicsView->size().width();
+    QSize view_size = ui->graphicsView->size();
+    int available_width = view_size.width();
 
     // for some unknown (well, at least unknown to me) reason the scene rect is "moved" (changes it position) when
     // doing zoom-in/zoom-out
@@ -361,16 +367,26 @@ void downloadwindow::redrawItemsPosition()
         a->setEasingCurve(QEasingCurve::Linear);
         a->start(QPropertyAnimation::DeleteWhenStopped);
 
+        // if here another object has been drawn in this "row" so decrease available_width
         available_width -= itemWidth;
-        if (available_width <= 0) {
-            // no more available space for this "row", so advance Y and reset X (like a CR+LF)
+
+        // check if remaining width is enough to draw another object
+        if (available_width < itemWidth) {
+            // not enough room to draw another object in current "row", so advance Y and reset X (like a CR+LF)
             newY += itemHeight;
             newX = 0;
-            available_width = ui->graphicsView->size().width();
+            available_width = view_size.width();
         } else {
             newX += itemWidth;
         }
     }
+
+    // at this point we need to resize the scene: if we redraw items due to a zoom-in
+    // there is the possibility that the current visible area is not enough to show all items, so
+    // probably the vertical scroll bar is needed; instead if we executed zoom-out we could need to
+    // remove the scroll bar
+    // So just resize the scene and use newY as the new height (the max error is just itemWidth)
+    p_scene->setSceneRect(0, 0, view_size.width(), newY);
 
     ui->graphicsView->ensureVisible(QRectF(0, 0, 0, 0));
 }
@@ -428,7 +444,7 @@ void downloadwindow::changeEvent(QEvent *e)
 
 void downloadwindow::on_btnZoomIn_released()
 {
-    if (p_transformFactor == 3) return;
+    if (p_transformFactor == 3.0) return;
     p_transformFactor += 0.25;
     foreach (tsuItem* item, p_tsulist) {
         item->set_FactorTransform(p_transformFactor);
@@ -438,7 +454,7 @@ void downloadwindow::on_btnZoomIn_released()
 
 void downloadwindow::on_btnZoomOut_released()
 {
-    if (p_transformFactor == 1) return;
+    if (p_transformFactor == 1.0) return;
     p_transformFactor -= 0.25;
     foreach (tsuItem* item, p_tsulist) {
         item->set_FactorTransform(p_transformFactor);
