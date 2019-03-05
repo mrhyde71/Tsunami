@@ -385,7 +385,12 @@ void downloadwindow::redrawItemsPosition()
     // there is the possibility that the current visible area is not enough to show all items, so
     // probably the vertical scroll bar is needed; instead if we executed zoom-out we could need to
     // remove the scroll bar
-    // So just resize the scene and use newY as the new height (the max error is just itemWidth)
+    // So just resize the scene
+    // If (newX == 0) then we just "advanced" the Y so newY is the new height,
+    // otherwise we need to use (newY + itemHeight)
+    if (newX != 0) {
+        newY += itemHeight;
+    }
     p_scene->setSceneRect(0, 0, view_size.width(), newY);
 
     ui->graphicsView->ensureVisible(QRectF(0, 0, 0, 0));
