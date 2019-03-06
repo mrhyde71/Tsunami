@@ -329,7 +329,10 @@ void downloadwindow::torrentDeletedFromSession(const std::string &hash)
 }
 
 void downloadwindow::redrawItemsPosition()
-{    
+{
+    // just to have some space from left border
+    static const int START_X_OFFSET = static_cast<int>(0.5*tsuItem::ItemGlowRadius);
+
 //    qDebug("redrawing tsuCard position");
 
     if (p_tsulist.empty()) {
@@ -340,11 +343,11 @@ void downloadwindow::redrawItemsPosition()
     int itemWidth = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemWidth) * p_transformFactor);
     int itemHeight = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemHeight) * p_transformFactor);
 
-    int newX {};
+    int newX {START_X_OFFSET};
     int newY {};
 
     QSize view_size = ui->graphicsView->size();
-    int available_width = view_size.width();
+    int available_width = (view_size.width() - START_X_OFFSET);
 
     // for some unknown (well, at least unknown to me) reason the scene rect is "moved" (changes it position) when
     // doing zoom-in/zoom-out
@@ -374,8 +377,8 @@ void downloadwindow::redrawItemsPosition()
         if (available_width < itemWidth) {
             // not enough room to draw another object in current "row", so advance Y and reset X (like a CR+LF)
             newY += itemHeight;
-            newX = 0;
-            available_width = view_size.width();
+            newX = START_X_OFFSET;
+            available_width = (view_size.width() - START_X_OFFSET);
         } else {
             newX += itemWidth;
         }
