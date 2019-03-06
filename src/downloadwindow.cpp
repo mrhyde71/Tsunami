@@ -331,7 +331,9 @@ void downloadwindow::torrentDeletedFromSession(const std::string &hash)
 void downloadwindow::redrawItemsPosition()
 {
     // just to have some space from left border
-    static const int START_X_OFFSET = static_cast<int>(0.5*tsuItem::ItemGlowRadius);
+    static const int START_X_OFFSET = static_cast<int>(1*tsuItem::ItemGlowRadius);
+    // just to have some space from top border
+    static const int START_Y_OFFSET = static_cast<int>(1*tsuItem::ItemGlowRadius);
 
 //    qDebug("redrawing tsuCard position");
 
@@ -344,7 +346,7 @@ void downloadwindow::redrawItemsPosition()
     int itemHeight = static_cast<int>((tsuItem::ItemGlowRadius + tsuItem::ItemHeight) * p_transformFactor);
 
     int newX {START_X_OFFSET};
-    int newY {};
+    int newY {START_Y_OFFSET};
 
     QSize view_size = ui->graphicsView->size();
     int available_width = (view_size.width() - START_X_OFFSET);
@@ -389,9 +391,9 @@ void downloadwindow::redrawItemsPosition()
     // probably the vertical scroll bar is needed; instead if we executed zoom-out we could need to
     // remove the scroll bar
     // So just resize the scene
-    // If (newX == 0) then we just "advanced" the Y so newY is the new height,
+    // If (newX == START_X_OFFSET) then we just "advanced" the Y so newY is the new height,
     // otherwise we need to use (newY + itemHeight)
-    if (newX != 0) {
+    if (newX != START_X_OFFSET) {
         newY += itemHeight;
     }
     p_scene->setSceneRect(0, 0, view_size.width(), newY);
