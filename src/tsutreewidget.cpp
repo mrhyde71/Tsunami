@@ -78,7 +78,7 @@ void tsuTreeWidget::expandDirectory(QTreeWidgetItem *item)
     showDirectory(item, 0);
 }
 
-void tsuTreeWidget::loadDriveStructure(const QString drive)
+void tsuTreeWidget::loadDriveStructure(const QString& drive)
 {
     QTreeWidgetItem* driveItem = new QTreeWidgetItem();
     QIcon *ic = new QIcon(":/images/drive.png");
@@ -115,7 +115,7 @@ void tsuTreeWidget::loadDriveStructure(const QString drive)
     delete(rootDir);
 }
 
-void tsuTreeWidget::addChildren(QTreeWidgetItem *item, QString filePath)
+void tsuTreeWidget::addChildren(QTreeWidgetItem *item, const QString& filePath)
 {
     QDir* rootDir = new QDir(filePath);
     QFileInfoList filesList = rootDir->entryInfoList();

@@ -115,8 +115,8 @@ private:
 
     void updateGauge(const float &downValue, const float &upValue);
 
-    QString convertSize(const int &size);
-    QString convertSizeUnit(const int &size);
+    static QString convertSize(const int &size);
+    static QString convertSizeUnit(const int &size);
 
     // QWidget interface
 protected:

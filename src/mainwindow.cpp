@@ -554,6 +554,7 @@ void MainWindow::changeEvent(QEvent *e)
     QMainWindow::changeEvent(e);
 }
 
+// static
 QString MainWindow::convertSize(const int &size)
 {
     if (size==0) return "0";
@@ -564,20 +565,23 @@ QString MainWindow::convertSize(const int &size)
     QStringListIterator i(list);
     QString unit("b");
 
-    while(num >= 1000.0 && i.hasNext())
-     {
+    while ((num >= 1000.0f) && i.hasNext())
+    {
         unit = i.next();
-        num /= 1000.0;
+        num /= 1000.0f;
     }
 
     int length = 1;
-    int x = num;
-    while ( x /= 10 )
+    int x = static_cast<int>(num);
+    while ( x /= 10 ) {
        length++;
+    }
 
     return QString().setNum(num,'f',3-length);
 }
 
+// static
+// same code of tsuitem::convertSizeUnit!
 QString MainWindow::convertSizeUnit(const int &size)
 {
     float num = size;
@@ -587,10 +591,10 @@ QString MainWindow::convertSizeUnit(const int &size)
     QStringListIterator i(list);
     QString unit("b");
 
-    while(num >= 1024.0 && i.hasNext())
+    while((num >= 1024.0f) && i.hasNext())
      {
         unit = i.next();
-        num /= 1024.0;
+        num /= 1024.0f;
     }
     return unit;
 }

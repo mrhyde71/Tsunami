@@ -8,6 +8,8 @@
 #include <QSettings>
 #include <QStandardPaths>
 
+#include <mutex> // needed for std::call_once, std::once_flag
+
 #include <src/tsumanager.h>
 #include <src/settingswindow.h>
 #include <src/updatemanager.h>
@@ -15,13 +17,79 @@
 #include <src/tsuCrawler/tsuprovider.h>
 #include <src/runGuard/runguard.h>
 
+
+QString getDefaultLogDirName()
+{
+    // return default directory to use to store the log files.
+    // Even if currently Tsunami should be used by one user at time (=not allowed multiple instances launched by different users)
+    // I strongly suggest to use a directory belonging to the launching user (this for reasons related to privacy: also names of
+    // downloaded files can be logged)
+
+
+#if defined(Q_OS_WIN32)
+
+// proposal: return the User's AppData folder
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 0))
+    return QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+#else
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+#endif
+
+    // for the moment keep current behaviour
+    // return QString();
+
+#elif defined(Q_OS_MAC)
+    // Impose a folder for log files
+    // On MacOS usually there is ~/Library/Logs/APPNAME, others use also ~/Library/Application Support/APPNAME
+    // I've chosen the first because MacOS has a log viewer which looks for log files just in ~/Library/Logs/
+    return (QString("%0/Library/Logs/Tsunami").arg(QDir::home().path()));
+
+#elif defined(Q_OS_LINUX)
+    // Proposal: return ~/.Tsunami
+    return (QString("%0/.Tsunami").arg(QDir::home().path()));
+
+    // for the moment keep current behaviour
+    // return QString();
+
+#else
+    // in all other cases return empty string (caller in this case will use the current directory)
+    return QString();
+#endif
+}
+
+void initLog(QString& log_full_path)
+{
+    static const QString DEFAULT_LOG_NAME("Tsunami.log");
+
+    QFile logFile(DEFAULT_LOG_NAME);
+
+    QString logDirName = getDefaultLogDirName();
+    if (!logDirName.isEmpty()) {
+        // make sure that dir exists, if not let's create it
+        QDir logDir(logDirName);
+        if (!logDir.exists()) {
+            logDir.mkpath(".");
+        }
+        logFile.setFileName(logDir.filePath(DEFAULT_LOG_NAME));
+    }
+
+    log_full_path = logFile.fileName();
+}
+
+
 void logMessageHandler(QtMsgType type, const QMessageLogContext & context, const QString & msg)
 {
+    static std::once_flag gotLogFileName{};
+    static QString        logFileName{};
+
+    std::call_once(gotLogFileName, initLog, logFileName);
+
+
     QString txt;
 
-    QString txtContext = QString("");
+    QString txtContext;
     QString funcName = QString::fromUtf8(context.function);
-    QString message = QString(msg);
+    QString message(msg);
 
     // strip out all chars after '(' like '(class QWidget *)' from function name
     funcName = funcName.left(funcName.indexOf("("));
@@ -96,11 +164,17 @@ void logMessageHandler(QtMsgType type, const QMessageLogContext & context, const
 
     if (shouldLog) {
         txt = QString("%0 - %1 - %2 -> %3").arg(date).arg(txt).arg(txtContext).arg(message);
-        QFile outFile("Tsunami.log");
+        
+        QFile outFile(logFileName);
+
         outFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text);
         QTextStream ts(&outFile);
+        // it is not rare to have UTF-8 characters in file nmaes, so try to use UTF-8
+        ts.setCodec("UTF-8");
         ts << txt << endl;
         QTextStream out(stdout);
+        // it is not rare to have UTF-8 characters in file nmaes, so try to use UTF-8
+        out.setCodec("UTF-8");
         out << txt << endl;
     }
 }
