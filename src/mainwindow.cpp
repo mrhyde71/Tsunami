@@ -12,7 +12,7 @@ private:
     const QString m_title;
 
 public:
-    CAppTitleString() : m_title(PROJECT " " VERSION) /*QString("%0 %1").arg(PROJECT).arg(VERSION)) */
+    CAppTitleString() : m_title(QString("%0 %1").arg(PROJECT).arg(VERSION))
     {
         qDebug() << QString("TITLE IS <%0>").arg(m_title);
     }
