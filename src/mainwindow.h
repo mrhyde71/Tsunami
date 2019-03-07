@@ -39,8 +39,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    virtual ~MainWindow();
 
     tsuManager *sessionManager;
     QPointer<QSystemTrayIcon> m_systrayIcon;
@@ -125,6 +125,10 @@ protected:
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
 
+    // for some reason we need a little trick to adjust the window title on Mac and Linux
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+    void showEvent( QShowEvent * event ) override;
+#endif
 };
 
 #endif // MAINWINDOW_H

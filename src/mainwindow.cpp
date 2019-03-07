@@ -1,14 +1,51 @@
+#include <mutex> // needed for std::once_flag
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
 #define TIME_TRAY_BALLOON 5000
 #define PROJECT "Tsunami++"
 
+class CAppTitleString
+{
+private:
+    const QString m_title;
+
+public:
+    CAppTitleString() : m_title(PROJECT " " VERSION) /*QString("%0 %1").arg(PROJECT).arg(VERSION)) */
+    {
+        qDebug() << QString("TITLE IS <%0>").arg(m_title);
+    }
+
+    const QString& get() const
+    {
+        return m_title;
+    }
+};
+
+
+const QString& getProjectTitle()
+{
+    static CAppTitleString title_sigleton;
+    return title_sigleton.get();
+}
+
+#if defined(Q_OS_MAC) || defined(Q_OS_LINUX)
+void MainWindow::showEvent(QShowEvent* event)
+{
+    static std::once_flag title_set;
+    QWidget::showEvent(event);
+
+    std::call_once(title_set, [&] () {setWindowFilePath(getProjectTitle());});
+}
+#endif
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    //setWindowFilePath(getProjectTitle()); on Mac this makes also the icon visible beside the name in caption
 
     p_session_thread = new QThread();
     sessionManager = new tsuManager();
@@ -27,8 +64,9 @@ MainWindow::MainWindow(QWidget *parent) :
     readSettings();
     loadLanguage();
 
+
     statusBar()->addPermanentWidget(statusLabel, 0);
-    statusBar()->showMessage("Welcome!");
+    statusBar()->showMessage(tr("Welcome!"));
 
     /* FROM SESSIONMANAGER */
     // add goes to downloadPage to add tsuCard
@@ -163,7 +201,9 @@ void MainWindow::updateGauge(const float &downValue, const float &upValue)
 
 void MainWindow::initializeScreen() {
     setWindowIcon(QIcon(":/images/logo_tsunami_tiny.ico"));
-    setWindowTitle(PROJECT " " VERSION);
+#if !defined(Q_OS_MAC) && !defined(Q_OS_LINUX)
+    setWindowTitle(getProjectTitle());
+#endif
 //    setWindowFlags(Qt::FramelessWindowHint);
     createTrayIcon();
 
@@ -344,7 +384,7 @@ void MainWindow::createTrayIcon()
     connect(m_systrayIcon, SIGNAL(messageClicked()), this, SLOT(balloonClicked()));
     // End of Icon Menu
     connect(m_systrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleVisibility(QSystemTrayIcon::ActivationReason)));
-    m_systrayIcon->setToolTip(PROJECT " " VERSION);
+    m_systrayIcon->setToolTip(getProjectTitle());
     m_systrayIcon->show();
 
     popupInfo("Welcome to the future!");
