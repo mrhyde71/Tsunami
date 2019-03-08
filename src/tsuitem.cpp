@@ -735,11 +735,16 @@ QVariant tsuItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVa
         return QGraphicsItem::itemChange(change, value);
 }
 
+#include <iomanip>
 QString tsuItem::convertSize(const uint64_t &size)
 {
     //qDebug() << QString("value %0 bytes converted in %1").arg(size).arg(QString::fromStdString(CByteValue::toBinaryMetricString(size)));
-    CByteValue::binaryUnit_t bu = CByteValue::nearestBinaryUnit(size);
-    return QString().setNum(CByteValue::to_binaryValue(bu, size), 'f', 1);
+    CByteValue::decimalUnit_t ut = CByteValue::nearestDecimalUnit(size);
+    double v = CByteValue::to_decimalValue(ut, size);
+    // return QString().setNum(CByteValue::to_decimalValue(ut, size), 'f', 1);
+    std::ostringstream o;
+    o << std::setw(4) << std::setprecision(3) << v;
+    return QString::fromStdString((o.str()));
 
 #if 0
     if (size==0) return "0";
@@ -774,8 +779,8 @@ QString tsuItem::convertSize(const uint64_t &size)
 // static
 QString tsuItem::convertSizeUnit(const uint64_t &size)
 {
-    CByteValue::binaryUnit_t bu = CByteValue::nearestBinaryUnit(size);
-    return QString::fromStdString(CByteValue::binaryUnitLabel(bu));
+    CByteValue::decimalUnit_t ut = CByteValue::nearestDecimalUnit(size);
+    return QString::fromStdString(CByteValue::decimalUnitLabel(ut));
 
 #if 0
     float num = size;
