@@ -11,11 +11,11 @@ namespace tsuEvents {
             // member variables
             std::string hash;
             QString name;
-            int downloaded {};
-            int uploaded {};
+            uint64_t downloaded {};
+            uint64_t uploaded {};
             int downloadRate {};
             int uploadRate {};
-            int total_size {};
+            uint64_t total_size {};
             int state {};
             int percentage {};
             int numSeeds {};
@@ -31,11 +31,11 @@ namespace tsuEvents {
 
             tsuEvent(const std::string& _hash,
                      const QString& _name,
-                     int _downloaded = 0,
-                     int _uploaded = 0,
+                     uint64_t _downloaded = 0,
+                     uint64_t _uploaded = 0,
                      int _downRate = 0,
                      int _upRate = 0,
-                     int _size = 0,
+                     uint64_t _size = 0,
                      int _state = 0,
                      int _percentage = 0,
                      int _numSeeds = 0,

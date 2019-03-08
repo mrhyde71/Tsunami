@@ -595,7 +595,7 @@ void MainWindow::changeEvent(QEvent *e)
 }
 
 // static
-QString MainWindow::convertSize(const int &size)
+QString MainWindow::convertSize(const uint64_t &size)
 {
     if (size==0) return "0";
     float num = size;
@@ -622,7 +622,7 @@ QString MainWindow::convertSize(const int &size)
 
 // static
 // same code of tsuitem::convertSizeUnit!
-QString MainWindow::convertSizeUnit(const int &size)
+QString MainWindow::convertSizeUnit(const uint64_t &size)
 {
     float num = size;
     QStringList list;

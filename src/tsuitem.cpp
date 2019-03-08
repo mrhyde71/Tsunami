@@ -234,8 +234,7 @@ void tsuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     pathLabels.addText(100 - lenRem, 58, p_fontLabel, tr("Remaining"));
     painter->drawPath(pathLabels);
 
-    int remaining = (p_size - p_downloaded);
-    if (remaining < 0) remaining = 0;
+    decltype(p_size) remaining = (p_size > p_downloaded) ? (p_size - p_downloaded) : 0;
 
     // Indicators
     QString sSize = convertSize(p_size);
@@ -378,27 +377,27 @@ const QString& tsuItem::get_Head() const
     return p_head;
 }
 
-void tsuItem::set_Size(const int &value)
+void tsuItem::set_Size(const uint64_t &value)
 {
     p_size = value;
 }
 
-void tsuItem::set_Downloaded(const int &value)
+void tsuItem::set_Downloaded(const uint64_t &value)
 {
     p_downloaded = value;
 }
 
-void tsuItem::set_Uploaded(const int &value)
+void tsuItem::set_Uploaded(const uint64_t &value)
 {
     p_uploaded = value;
 }
 
-int tsuItem::get_Downloaded() const
+uint64_t tsuItem::get_Downloaded() const
 {
     return p_downloaded;
 }
 
-int tsuItem::get_Uploaded() const
+uint64_t tsuItem::get_Uploaded() const
 {
     return p_uploaded;
 }
@@ -736,8 +735,13 @@ QVariant tsuItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVa
         return QGraphicsItem::itemChange(change, value);
 }
 
-QString tsuItem::convertSize(const int &size)
+QString tsuItem::convertSize(const uint64_t &size)
 {
+    //qDebug() << QString("value %0 bytes converted in %1").arg(size).arg(QString::fromStdString(CByteValue::toBinaryMetricString(size)));
+    CByteValue::binaryUnit_t bu = CByteValue::nearestBinaryUnit(size);
+    return QString().setNum(CByteValue::to_binaryValue(bu, size), 'f', 1);
+
+#if 0
     if (size==0) return "0";
     float num = size;
     QStringList list;
@@ -764,11 +768,16 @@ QString tsuItem::convertSize(const int &size)
 //    } else {
 //        return QString().setNum(num,'f',0);//+" "+unit;
 //    }
+#endif
 }
 
 // static
-QString tsuItem::convertSizeUnit(const int &size)
+QString tsuItem::convertSizeUnit(const uint64_t &size)
 {
+    CByteValue::binaryUnit_t bu = CByteValue::nearestBinaryUnit(size);
+    return QString::fromStdString(CByteValue::binaryUnitLabel(bu));
+
+#if 0
     float num = size;
     QStringList list;
     list << "KB" << "MB" << "GB" << "TB";
@@ -782,6 +791,7 @@ QString tsuItem::convertSizeUnit(const int &size)
         num /= 1024.0f;
     }
     return unit;
+#endif
 }
 
 QString tsuItem::remainingTime() const

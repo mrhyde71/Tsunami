@@ -21,8 +21,8 @@ private:
   void loadDriveStructure(const QString& drive);
   void addChildren(QTreeWidgetItem* item, const QString& filePath);
 
-  QString convertSize(const int &size);
-  QString convertSizeUnit(const int &size);
+  QString convertSize(const uint64_t &size);
+  QString convertSizeUnit(const uint64_t &size);
 };
 
 #endif // TSUTREEWIDGET_H

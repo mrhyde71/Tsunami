@@ -141,7 +141,7 @@ void tsuTreeWidget::addChildren(QTreeWidgetItem *item, const QString& filePath)
     delete(rootDir);
 }
 
-QString tsuTreeWidget::convertSize(const int &size)
+QString tsuTreeWidget::convertSize(const uint64_t &size)
 {
     if (size==0) return "0";
     float num = size;
@@ -165,7 +165,7 @@ QString tsuTreeWidget::convertSize(const int &size)
     return QString().setNum(num,'f',3-length);
 }
 
-QString tsuTreeWidget::convertSizeUnit(const int &size)
+QString tsuTreeWidget::convertSizeUnit(const uint64_t &size)
 {
     float num = size;
     QStringList list;
