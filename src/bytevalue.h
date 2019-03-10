@@ -1,9 +1,10 @@
 #ifndef CBYTEVALUE_H
 #define CBYTEVALUE_H
 
+#include <cstdint>     // needed for uint64_t
 #include <string>      // needed for std::string
 #include <type_traits> // needed for std::enable_if
-#include <map>
+#include <map>         // needed for std::map
 
 #include <QString>
 
@@ -20,10 +21,9 @@
 //!
 //! \return value corresponding to 10^v
 //!
-constexpr uint64_t operator"" _p10(uint64_t v)
+constexpr unsigned long long operator"" _p10(unsigned long long v)
 {
-    if (v == 1) return 10;
-    return (10 * operator""_p10(v-1));
+    return ((v == 0) ? 1 : (10 * operator""_p10(v-1)));
 }
 
 // Another method to compute pow of 2 (at build time) that simply uses bit shift operator:
@@ -40,7 +40,7 @@ constexpr uint64_t operator"" _p10(uint64_t v)
 //!
 //! \return value corresponding to 10^v
 //!
-constexpr uint64_t operator"" _p2(uint64_t v)
+constexpr unsigned long long operator"" _p2(unsigned long long v)
 {
     return ((v == 0) ? 1 : (static_cast<uint64_t>(2) << (v-1)));
 }
@@ -72,7 +72,7 @@ static constexpr uint64_t A_TEBIBYTE{ 40_p2 }; //!< 1 tebibyte in bytes = 2^40 b
 //! \param v  Value in byte
 //! \return   Value in byte (just th specified value)
 //!
-constexpr uint64_t operator""_B(uint64_t v) { return v; }
+constexpr unsigned long long operator""_B(unsigned long long v) { return v; }
 
 // Please notice that the following literal operators (except for kilobyte case) have name beginning wuth _underscore followed by capital letter.
 // To avoid confusion with reserved words (names with underscore followed by capital letters are used by keywords) and, according to C++ recommended standard,
@@ -86,7 +86,7 @@ constexpr uint64_t operator""_B(uint64_t v) { return v; }
 //! \param v  Value in kibibyte
 //! \return   Value in bytes corresponding to specified KiB value
 //!
-constexpr uint64_t operator""_KiB(uint64_t v) { return (A_KIBIBYTE * v); }
+constexpr unsigned long long operator""_KiB(unsigned long long v) { return (A_KIBIBYTE * v); }
 
 //!
 //! \brief literal suffix operator _MiB (mebibytes to bytes conversion)
@@ -96,7 +96,7 @@ constexpr uint64_t operator""_KiB(uint64_t v) { return (A_KIBIBYTE * v); }
 //! \param v  Value in mebibyte
 //! \return   Value in bytes corresponding to specified MiB value
 //!
-constexpr uint64_t operator""_MiB(uint64_t v) { return (A_MEBIBYTE * v); }
+constexpr unsigned long long operator""_MiB(unsigned long long v) { return (A_MEBIBYTE * v); }
 
 //!
 //! \brief literal suffix operator _GiB (gibibytes to bytes conversion)
@@ -106,7 +106,7 @@ constexpr uint64_t operator""_MiB(uint64_t v) { return (A_MEBIBYTE * v); }
 //! \param v  Value in gibibyte
 //! \return   Value in bytes corresponding to specified GiB value
 //!
-constexpr uint64_t operator""_GiB(uint64_t v) { return (A_GIBIBYTE * v); }
+constexpr unsigned long long operator""_GiB(unsigned long long v) { return (A_GIBIBYTE * v); }
 
 //!
 //! \brief literal suffix operator _TiB (tebibytes to bytes conversion)
@@ -116,7 +116,7 @@ constexpr uint64_t operator""_GiB(uint64_t v) { return (A_GIBIBYTE * v); }
 //! \param v  Value in tebibyte
 //! \return   Value in bytes corresponding to specified TiB value
 //!
-constexpr uint64_t operator""_TiB(uint64_t v) { return (A_TEBIBYTE * v); }
+constexpr unsigned long long operator""_TiB(unsigned long long v) { return (A_TEBIBYTE * v); }
 
 //!
 //! \brief literal suffix operator _kB (kilobytes to bytes conversion)
@@ -126,7 +126,7 @@ constexpr uint64_t operator""_TiB(uint64_t v) { return (A_TEBIBYTE * v); }
 //! \param v  Value in kilobyte
 //! \return   Value in bytes corresponding to specified kB value
 //!
-constexpr uint64_t operator""_kB(uint64_t v) { return (A_KILOBYTE * v); }
+constexpr unsigned long long operator""_kB(unsigned long long v) { return (A_KILOBYTE * v); }
 
 //!
 //! \brief literal suffix operator _MB (megabytes to bytes conversion)
@@ -136,7 +136,7 @@ constexpr uint64_t operator""_kB(uint64_t v) { return (A_KILOBYTE * v); }
 //! \param v  Value in megabyte
 //! \return   Value in bytes corresponding to specified MB value
 //!
-constexpr uint64_t operator""_MB(uint64_t v) { return (A_MEGABYTE * v); }
+constexpr unsigned long long operator""_MB(unsigned long long v) { return (A_MEGABYTE * v); }
 
 //!
 //! \brief literal suffix operator _GB (gigabytes to bytes conversion)
@@ -146,7 +146,7 @@ constexpr uint64_t operator""_MB(uint64_t v) { return (A_MEGABYTE * v); }
 //! \param v  Value in gigabyte
 //! \return   Value in bytes corresponding to specified GB value
 //!
-constexpr uint64_t operator""_GB(uint64_t v) { return (A_GIGABYTE * v); }
+constexpr unsigned long long operator""_GB(unsigned long long v) { return (A_GIGABYTE * v); }
 
 //!
 //! \brief literal suffix operator _TB (terabytes to bytes conversion)
@@ -156,7 +156,7 @@ constexpr uint64_t operator""_GB(uint64_t v) { return (A_GIGABYTE * v); }
 //! \param v  Value in terabyte
 //! \return   Value in bytes corresponding to specified TB value
 //!
-constexpr uint64_t operator""_TB(uint64_t v) { return (A_TERABYTE * v); }
+constexpr unsigned long long operator""_TB(unsigned long long v) { return (A_TERABYTE * v); }
 
 // The following are used just to verify previous constants/operators
 static_assert(1_KiB == A_KIBIBYTE, "KiB failed");
