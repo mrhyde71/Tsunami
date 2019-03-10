@@ -8,52 +8,18 @@
 #include <QString>
 
 // here follows a little trick to calculate the pow function at build time (in recursive manner)
-// I use it to define, at build time, constants that will be used
-// later
+// I use it to define, at build time, constants that will be used later
 
-// At first the "general" template that will be used
-// notice that simply define its value as the result of something like:
-//   value of (base^N) = base * {value of (base^(N-1))}
-//
-template<size_t base, size_t exponent>
-struct CompilePow
-{
-    enum : uint64_t { value = base*CompilePow<base, exponent - 1>::value };
-};
-
-// here the template specialization when base is 2 and exponent is 1
-template<> struct CompilePow<2, 1>
-{
-    enum { value = 2 };
-};
-
-// here the template specialization when base is 2 and exponent is 0
-// Please notice that I written it just "for completeness" but in the truth
-// tis is never used
-template<>
-struct CompilePow<2, 0>
-{
-    enum { value = 1 };
-};
-
-
-
-// here the template specialization when base is 10 and exponent is 1
-template<> struct CompilePow<10, 1>
-{
-    enum { value = 10 };
-};
-
-// here the template specialization when base is 10 and exponent is 0
-// Please notice that I written it just "for completeness" but in the truth
-// tis is never used
-template<>
-struct CompilePow<10, 0>
-{
-    enum { value = 1 };
-};
-
-
+//!
+//! \brief literal operator _p10
+//!
+//! Evaluated at build time: this can be used in constant declaration.
+//! This computes the pow function recursively.
+//!
+//! \param v  exponent to use to calculate the power of 10
+//!
+//! \return value corresponding to 10^v
+//!
 constexpr uint64_t operator"" _p10(uint64_t v)
 {
     if (v == 1) return 10;
@@ -63,9 +29,20 @@ constexpr uint64_t operator"" _p10(uint64_t v)
 // Another method to compute pow of 2 (at build time) that simply uses bit shift operator:
 // this time I choosr a literal operator
 
+
+//!
+//! \brief literal operator _p2
+//!
+//! Evaluated at build time: this can be used in constant declaration.
+//! This computes the pow function using shift operator
+//!
+//! \param v  exponent to use to calculate the power of 10
+//!
+//! \return value corresponding to 10^v
+//!
 constexpr uint64_t operator"" _p2(uint64_t v)
 {
-    return (static_cast<uint64_t>(2) << (v-1));
+    return ((v == 0) ? 1 : (static_cast<uint64_t>(2) << (v-1)));
 }
 
 // The previous code should be enough but, to improve readability of sources,
@@ -75,16 +52,9 @@ static constexpr uint64_t A_BYTE{ 1 }; //!< Value of a byte (obviously it's just
 
 // Here follows constants that uses pow of 10
 
-/*
-static constexpr uint64_t A_KILOBYTE{ CompilePow<10,  3>::value }; //!< 1 kilobyte in bytes = 10^3 bytes
-static constexpr uint64_t A_MEGABYTE{ CompilePow<10,  6>::value }; //!< 1 megabyte in bytes = 10^6 bytes
-static constexpr uint64_t A_GIGABYTE{ CompilePow<10,  9>::value }; //!< 1 gigabyte in bytes = 10^9 bytes
-static constexpr uint64_t A_TERABYTE{ CompilePow<10, 12>::value }; //!< 1 terabyte in bytes = 10^12 bytes
-*/
-
-static constexpr uint64_t A_KILOBYTE{ 3_p10 }; //!< 1 kilobyte in bytes = 10^3 bytes
-static constexpr uint64_t A_MEGABYTE{ 6_p10 }; //!< 1 megabyte in bytes = 10^6 bytes
-static constexpr uint64_t A_GIGABYTE{ 9_p10 }; //!< 1 gigabyte in bytes = 10^9 bytes
+static constexpr uint64_t A_KILOBYTE{  3_p10 }; //!< 1 kilobyte in bytes = 10^3 bytes
+static constexpr uint64_t A_MEGABYTE{  6_p10 }; //!< 1 megabyte in bytes = 10^6 bytes
+static constexpr uint64_t A_GIGABYTE{  9_p10 }; //!< 1 gigabyte in bytes = 10^9 bytes
 static constexpr uint64_t A_TERABYTE{ 12_p10 }; //!< 1 terabyte in bytes = 10^12 bytes
 
 // Here follows constants that uses pow of 2
