@@ -2,9 +2,6 @@
 #define TSUITEM_H
 
 #include <cmath>       // needed for fmod
-#include <string>      // needed for std::string
-#include <sstream>     // needed for std::ostringstream
-#include <map>         // needed for std::map
 
 #include <QDebug>
 #include <QColor>
@@ -14,7 +11,6 @@
 #include <qmath.h>
 
 #include "tsuevents.h"
-
 
 enum statusEnum {
     undefined,
@@ -29,216 +25,11 @@ enum statusEnum {
 };
 
 
-class CByteValue
-{
-private:
-    uint64_t m_value;
-
-public:
-    static constexpr uint64_t A_TERABYTE {1000000000000};
-    static constexpr uint64_t A_GIGABYTE {1000000000};
-    static constexpr uint64_t A_MEGABYTE {1000000};
-    static constexpr uint64_t A_KILOBYTE {1000};
-    static constexpr uint64_t A_BYTE     {1};
-
-    static constexpr uint64_t A_TEBIBYTE {1099511627776}; // 0x10000000000 = 2^40
-    static constexpr uint64_t A_GIBIBYTE {1073741824};    // 0x40000000 - 2^30
-    static constexpr uint64_t A_MEBIBYTE {1048576};       // 0x100000 = 2^20
-    static constexpr uint64_t A_KIBIBYTE {1024};          // 0x400 = 2^10
-
-    enum class decimalUnit_t : uint64_t
-    {
-        TB = A_TERABYTE,
-        GB = A_GIGABYTE,
-        MB = A_MEGABYTE,
-        kB = A_KILOBYTE,
-        B  = A_BYTE
-    };
-
-
-    enum class binaryUnit_t : uint64_t
-    {
-        TiB = A_TEBIBYTE,
-        GiB = A_GIBIBYTE,
-        MiB = A_MEBIBYTE,
-        KiB = A_KIBIBYTE,
-        B   = A_BYTE
-    };
-
-public:
-    explicit CByteValue(uint64_t v = 0) : m_value(v)
-    {
-    }
-
-
-    static decimalUnit_t nearestDecimalUnit(uint64_t value_in_bytes)
-    {
-        if (value_in_bytes >= A_TERABYTE) {
-            return decimalUnit_t::TB;
-        }
-        if (value_in_bytes >= A_GIGABYTE) {
-            return decimalUnit_t::GB;
-        }
-        if (value_in_bytes >= A_MEGABYTE) {
-            return decimalUnit_t::MB;
-        }
-        if (value_in_bytes >= A_KILOBYTE) {
-            return decimalUnit_t::kB;
-        }
-        return decimalUnit_t::B;
-    }
-
-    static binaryUnit_t nearestBinaryUnit(uint64_t value_in_bytes)
-    {
-        if (value_in_bytes >= A_TEBIBYTE) {
-            return binaryUnit_t::TiB;
-        }
-        if (value_in_bytes >= A_GIBIBYTE) {
-            return binaryUnit_t::GiB;
-        }
-        if (value_in_bytes >= A_MEBIBYTE) {
-            return binaryUnit_t::MiB;
-        }
-        if (value_in_bytes >= A_KIBIBYTE) {
-            return binaryUnit_t::KiB;
-        }
-        return binaryUnit_t::B;
-    }
-
-    static const std::string& decimalUnitLabel(decimalUnit_t dut)
-    {
-        static const std::map<decimalUnit_t, std::string> labels {
-            {decimalUnit_t::B, "B"},
-            {decimalUnit_t::kB, "kB"},
-            {decimalUnit_t::MB, "MB"},
-            {decimalUnit_t::GB, "GB"},
-            {decimalUnit_t::TB, "TB"},
-        };
-
-        return labels.at(dut);
-    }
-
-
-    static const std::string& binaryUnitLabel(binaryUnit_t but)
-    {
-        static const std::map<binaryUnit_t, std::string> labels {
-            {binaryUnit_t::B, "B"},
-            {binaryUnit_t::KiB, "KiB"},
-            {binaryUnit_t::MiB, "MiB"},
-            {binaryUnit_t::GiB, "GiB"},
-            {binaryUnit_t::TiB, "TiB"},
-        };
-
-        return labels.at(but);
-    }
-
-    static double to_decimalValue(decimalUnit_t du, uint64_t value)
-    {
-        if (du == decimalUnit_t::B) {
-            return (double) value;
-        }
-        return (static_cast<double>(value) / static_cast<double>(du));
-    }
-
-    static double to_binaryValue(binaryUnit_t bu, uint64_t value)
-    {
-        if (bu == binaryUnit_t::B) {
-            return (double) value;
-        }
-        return (static_cast<double>(value) / static_cast<double>(bu));
-    }
-
-    const uint64_t& to_bytes() const
-    {
-        return m_value;
-    }
-
-
-    double to_decimalValue(decimalUnit_t du) const
-    {
-        return CByteValue::to_decimalValue(du, m_value);
-    }
-
-    double to_binaryValue(binaryUnit_t bu) const
-    {
-        return CByteValue::to_binaryValue(bu, m_value);
-    }
-
-
-    double to_kilobyte() const
-    {
-        return to_decimalValue(decimalUnit_t::kB);
-    }
-
-    double to_megabyte() const
-    {
-        return to_decimalValue(decimalUnit_t::MB);
-    }
-
-    double to_gigabyte() const
-    {
-        return to_decimalValue(decimalUnit_t::GB);
-    }
-
-    double to_terabyte() const
-    {
-        return to_decimalValue(decimalUnit_t::TB);
-    }
-
-
-    double to_kibibyte() const
-    {
-        return to_binaryValue(binaryUnit_t::KiB);
-    }
-
-    double to_mebibyte() const
-    {
-        return to_binaryValue(binaryUnit_t::MiB);
-    }
-
-    double to_gibibyte() const
-    {
-        return to_binaryValue(binaryUnit_t::GiB);
-    }
-
-    double to_tebibyte() const
-    {
-        return to_binaryValue(binaryUnit_t::TiB);
-    }
-
-    static std::string toDecimalMetricString(uint64_t v)
-    {
-        // this is used to obtain a string representing the nearest multiple in SI (International System of Units)
-        std::ostringstream o;
-
-        decimalUnit_t ut = CByteValue::nearestDecimalUnit(v);
-
-        o << static_cast<uint64_t>(CByteValue::to_decimalValue(ut, v)) << " " << CByteValue::decimalUnitLabel(ut);
-        return o.str();
-    }
-
-
-    static std::string toBinaryMetricString(uint64_t v)
-    {
-        std::ostringstream o;
-
-        binaryUnit_t ut = CByteValue::nearestBinaryUnit(v);
-
-        o << static_cast<uint64_t>(CByteValue::to_binaryValue(ut, v)) << " " << CByteValue::binaryUnitLabel(ut);
-        return o.str();
-    }
-
-    operator const uint64_t& () const
-    {
-        return m_value;
-    }
-
-};
-
-class tsuItem : public QObject, public QGraphicsItem
+class tsuItem : public QGraphicsObject // QObject, public QGraphicsItem
 {
     Q_OBJECT
     Q_PROPERTY(QPointF pos READ pos WRITE setPos)
+
 public:
     tsuItem();
     tsuItem(const std::string &head);
@@ -277,10 +68,6 @@ public:
     void executeItemRemove(bool const &filesToo);
     void executePause();
     void executeResume();
-
-    QString convertSize(const uint64_t &size);
-    static QString convertSizeUnit(const uint64_t &size);
-
 
 public slots:
     void setValue(const tsuEvents::tsuEvent &event);

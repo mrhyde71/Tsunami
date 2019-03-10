@@ -2,9 +2,11 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "bytevalue.h" // needed for CByteValue
 
-#define TIME_TRAY_BALLOON 5000
-#define PROJECT "Tsunami++"
+constexpr int TIME_TRAY_BALLOON {5000}; //!< value in milliseconds to use for tray icons messages
+
+const QString PROJECT("Tsunami++");
 
 class CAppTitleString
 {
@@ -534,16 +536,36 @@ void MainWindow::sessionStatisticUpdate(const quint64 &sent, const quint64 &rece
                                         const quint64 &error, const quint64 &queuedDown, const quint64 &queuedSeed)
 {
     QPair<float, float> pair = downloadPage->getRate();
-    float downRate = pair.first;
-    float upRate = pair.second;
+    float& downRate = pair.first;
+    float& upRate = pair.second;
 
     QString htmlDown = "<img src='qrc:/images/arrow_down.png'></img>";
     QString htmlUp = "<img src='qrc:/images/arrow_up.png'></img>";
 
-    QString ups = QString("%0 %1%2/s (%3%4) / %5 %6%7/s (%8%9)").arg(htmlDown).arg(convertSize(downRate)).arg(convertSizeUnit(downRate))
-                                                                              .arg(convertSize(received)).arg(convertSizeUnit(received))
-                                                                .arg(htmlUp).arg(convertSize(upRate)).arg(convertSizeUnit(upRate))
-                                                                            .arg(convertSize(sent)).arg(convertSizeUnit(sent));
+    // just to minimize processing...
+    QString downRate_inDU;
+    QString downRate_DULabel;
+    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(downRate), downRate_inDU, downRate_DULabel);
+
+    QString upRate_inDU;
+    QString upRate_DULabel;
+    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(upRate), upRate_inDU, upRate_DULabel);
+
+    QString received_inDU;
+    QString received_DULabel;
+    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(received), received_inDU, received_DULabel);
+
+
+    QString sent_inDU;
+    QString sent_DULabel;
+    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(sent), sent_inDU, sent_DULabel);
+
+    QString ups = QString("%0 %1%2/s (%3%4) / %5 %6%7/s (%8%9)").arg(htmlDown)
+            .arg(downRate_inDU).arg(downRate_DULabel)
+            .arg(received_inDU).arg(received_DULabel)
+            .arg(htmlUp).arg(upRate_inDU).arg(upRate_DULabel)
+            .arg(sent_inDU).arg(sent_DULabel);
+
     updateStatusBarStatistics(ups);
 
     updateGauge((downRate * 8)/1000000, (upRate * 8)/1000000);  // Ethernet 100 BASE-T -> http://www.convert-me.com/en/convert/data_transfer_rate/byte_s.html?u=byte%2Fs&v=1
@@ -592,51 +614,6 @@ void MainWindow::changeEvent(QEvent *e)
     }
 
     QMainWindow::changeEvent(e);
-}
-
-// static
-QString MainWindow::convertSize(const uint64_t &size)
-{
-    if (size==0) return "0";
-    float num = size;
-    QStringList list;
-    list << "KB" << "MB" << "GB" << "TB";
-
-    QStringListIterator i(list);
-    QString unit("b");
-
-    while ((num >= 1000.0f) && i.hasNext())
-    {
-        unit = i.next();
-        num /= 1000.0f;
-    }
-
-    int length = 1;
-    int x = static_cast<int>(num);
-    while ( x /= 10 ) {
-       length++;
-    }
-
-    return QString().setNum(num,'f',3-length);
-}
-
-// static
-// same code of tsuitem::convertSizeUnit!
-QString MainWindow::convertSizeUnit(const uint64_t &size)
-{
-    float num = size;
-    QStringList list;
-    list << "KB" << "MB" << "GB" << "TB";
-
-    QStringListIterator i(list);
-    QString unit("b");
-
-    while((num >= 1024.0f) && i.hasNext())
-     {
-        unit = i.next();
-        num /= 1024.0f;
-    }
-    return unit;
 }
 
 void MainWindow::on_btnStatDown_toggled(bool checked)

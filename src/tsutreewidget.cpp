@@ -52,7 +52,13 @@ void tsuTreeWidget::showDirectory(QTreeWidgetItem *item, int column)
 //        if(fileInfo.isFile())
 //        {
 //            child->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
-//            child->setText(1, QString("%0%1").arg(convertSize(fileInfo.size())).arg(convertSizeUnit(fileInfo.size())));
+
+//            // remember to include bytevalue.h to use convertToRankValueAndGetStrings_decimal
+//            QString fsize_inU;
+//            QString fsize_ULabel;
+//            convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(fileInfo.size()), fsize_inU, fsize_ULabel);
+//
+//            child->setText(1, QString("%0%1").arg(fsize_inU).arg(fsize_ULabel));
 //            child->setIcon(0,*(new QIcon(":/images/file-doc.png")));
 //        }
 
@@ -139,45 +145,4 @@ void tsuTreeWidget::addChildren(QTreeWidgetItem *item, const QString& filePath)
         }
     }
     delete(rootDir);
-}
-
-QString tsuTreeWidget::convertSize(const uint64_t &size)
-{
-    if (size==0) return "0";
-    float num = size;
-    QStringList list;
-    list << "KB" << "MB" << "GB" << "TB";
-
-    QStringListIterator i(list);
-    QString unit("b");
-
-    while(num >= 1000.0 && i.hasNext())
-     {
-        unit = i.next();
-        num /= 1000.0;
-    }
-
-    int length = 1;
-    int x = num;
-    while ( x /= 10 )
-       length++;
-
-    return QString().setNum(num,'f',3-length);
-}
-
-QString tsuTreeWidget::convertSizeUnit(const uint64_t &size)
-{
-    float num = size;
-    QStringList list;
-    list << "KB" << "MB" << "GB" << "TB";
-
-    QStringListIterator i(list);
-    QString unit("b");
-
-    while(num >= 1024.0 && i.hasNext())
-     {
-        unit = i.next();
-        num /= 1024.0;
-    }
-    return unit;
 }
