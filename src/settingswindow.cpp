@@ -180,7 +180,7 @@ void settingswindow::on_btnSave_released()
     int savedUpLimit = settings.value("libtorrent/upload_rate_limit", 0).toInt();
     bool webEnabled = settings.value("WebInterfaceOn", true).toBool();
 
-    uint savedPort = settings.value("port", 0).toUInt();
+    uint savedPort = settings.value("libtorrent/port", 0).toUInt();
 
     bool needRestart = (ui->cmbLanguage->currentIndex() != savedLanguage);
     bool needRefreshTorrentSettings = ( (ui->numLimitDown->value() != savedDownLimit) ||
