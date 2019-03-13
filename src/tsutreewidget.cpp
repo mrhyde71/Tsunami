@@ -53,10 +53,10 @@ void tsuTreeWidget::showDirectory(QTreeWidgetItem *item, int column)
 //        {
 //            child->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicator);
 
-//            // remember to include bytevalue.h to use convertToRankValueAndGetStrings_decimal
+//            // remember to include bytevalue.h to use CByteValue::convertToRankValueAndGetStrings_size
 //            QString fsize_inU;
 //            QString fsize_ULabel;
-//            convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(fileInfo.size()), fsize_inU, fsize_ULabel);
+//            CByteValue::convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(fileInfo.size()), fsize_inU, fsize_ULabel);
 //
 //            child->setText(1, QString("%0%1").arg(fsize_inU).arg(fsize_ULabel));
 //            child->setIcon(0,*(new QIcon(":/images/file-doc.png")));

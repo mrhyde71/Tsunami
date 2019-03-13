@@ -545,20 +545,20 @@ void MainWindow::sessionStatisticUpdate(const quint64 &sent, const quint64 &rece
     // just to minimize processing...
     QString downRate_inDU;
     QString downRate_DULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(downRate), downRate_inDU, downRate_DULabel);
+    CByteValue::convertToRankValueAndGetStrings_rate(static_cast<uint64_t>(downRate), downRate_inDU, downRate_DULabel);
 
     QString upRate_inDU;
     QString upRate_DULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(upRate), upRate_inDU, upRate_DULabel);
+    CByteValue::convertToRankValueAndGetStrings_rate(static_cast<uint64_t>(upRate), upRate_inDU, upRate_DULabel);
 
     QString received_inDU;
     QString received_DULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(received), received_inDU, received_DULabel);
+    CByteValue::convertToRankValueAndGetStrings_size(static_cast<uint64_t>(received), received_inDU, received_DULabel);
 
 
     QString sent_inDU;
     QString sent_DULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(sent), sent_inDU, sent_DULabel);
+    CByteValue::convertToRankValueAndGetStrings_size(static_cast<uint64_t>(sent), sent_inDU, sent_DULabel);
 
     QString ups = QString("%0 %1%2/s (%3%4) / %5 %6%7/s (%8%9)").arg(htmlDown)
             .arg(downRate_inDU).arg(downRate_DULabel)

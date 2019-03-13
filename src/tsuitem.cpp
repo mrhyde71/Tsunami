@@ -218,38 +218,74 @@ void tsuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     // obtain strings to use for file size, file remaining, uprate and downrate
     QString sSize_inU;
     QString sSize_ULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(p_size), sSize_inU, sSize_ULabel);
+    CByteValue::convertToRankValueAndGetStrings_size(static_cast<uint64_t>(p_size), sSize_inU, sSize_ULabel);
 
     QString sDown_inU;
     QString sDown_ULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(p_downloaded), sDown_inU, sDown_ULabel);
+    CByteValue::convertToRankValueAndGetStrings_size(static_cast<uint64_t>(p_downloaded), sDown_inU, sDown_ULabel);
 
 
     decltype(p_size) remaining = (p_size > p_downloaded) ? (p_size - p_downloaded) : 0;
 
     QString sRema_inU;
     QString sRema_ULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(remaining), sRema_inU, sRema_ULabel);
+    CByteValue::convertToRankValueAndGetStrings_size(static_cast<uint64_t>(remaining), sRema_inU, sRema_ULabel);
 
     QString sRateUp_inU;
     QString sRateUp_ULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(p_rateUpload), sRateUp_inU, sRateUp_ULabel);
+    CByteValue::convertToRankValueAndGetStrings_rate(static_cast<uint64_t>(p_rateUpload), sRateUp_inU, sRateUp_ULabel);
 
     QString sRateDown_inU;
     QString sRateDown_ULabel;
-    convertToRankValueAndGetStrings_decimal(static_cast<uint64_t>(p_rateDownload), sRateDown_inU, sRateDown_ULabel);
+    CByteValue::convertToRankValueAndGetStrings_rate(static_cast<uint64_t>(p_rateDownload), sRateDown_inU, sRateDown_ULabel);
+
+
+    /////////////////////////////////////////////////////////////////////
+    //
+    //
+    //      |DESCR| |VAL| |UM|
+    //   012345678901234567890
+    //
+    // TOT = 30
+    // LEN_UM = 30 - 27 +1 = 4
+    // X_UM = TOT - LEN_UM + 1
+    // LEN_VAL = 6
+    // X_VAL = TOT - (LEN_VAL + LEN_UM) = X_UM - LEN_VAL
+    // xfilesizeLABEL = x for FILESIZE LABEL = tsuItem::ItemWidth - spaceOf("MiB  ")
+    // xfilesizeVALUE = x for FILESIZE VALUE = xfilesizeLABEL - spaceOf("999.9 ")
+    // xdescription   = x for DESCRIPTION = xfilesizeVALE - spaceOf(description)
+    //
+    int estimated_unit_label_length = 0;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
+        estimated_unit_label_length = QFontMetrics(p_indicatorUnitFont).horizontalAdvance("MiB  "); // 2 trailing space to leave some space from right edge
+#else
+        estimated_unit_label_length = QFontMetrics(p_indicatorUnitFont).horizontalAdvance("MiB  "); // 2 trailing space to leave some space from right edge
+#endif
+
+    int estimated_value_length = 0;
+    {
+        #if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
+            estimated_value_length = QFontMetrics(p_indicatorFont).horizontalAdvance("999.9 "); // Probably nobody will try to download files with size > of 999.9 TiB!
+        #else
+            estimated_value_length = QFontMetrics(p_indicatorFont).width().horizontalAdvance("999.9 ");
+        #endif
+    }
+
+    int x_size_UM    = tsuItem::ItemWidth - estimated_unit_label_length;
+    int x_size_value = x_size_UM - estimated_value_length;
+
 
 
     // Label
     painter->setFont(p_fontLabel);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
-    int lenTot = painter->fontMetrics().horizontalAdvance(tr("Total"));
-    int lenDow = painter->fontMetrics().horizontalAdvance(tr("Downloaded"));
-    int lenRem = painter->fontMetrics().horizontalAdvance(tr("Remaining"));
+    int lenTot = painter->fontMetrics().horizontalAdvance(tr("Total") + QString("  "));      // Trailing spaces to have some space between description and value
+    int lenDow = painter->fontMetrics().horizontalAdvance(tr("Downloaded") + QString("  "));
+    int lenRem = painter->fontMetrics().horizontalAdvance(tr("Remaining") + QString("  "));
 #else
-    int lenTot = painter->fontMetrics().width(tr("Total"));
-    int lenDow = painter->fontMetrics().width(tr("Downloaded"));
-    int lenRem = painter->fontMetrics().width(tr("Remaining"));
+    int lenTot = painter->fontMetrics().width(tr("Total") + QString("  "));
+    int lenDow = painter->fontMetrics().width(tr("Downloaded") + QString("  "));
+    int lenRem = painter->fontMetrics().width(tr("Remaining") + QString("  "));
 #endif
     QPainterPath pathLabels;
     pen.setColor(Qt::transparent);
@@ -257,55 +293,43 @@ void tsuItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     painter->setBrush(p_colorLabel);
     painter->setPen(pen);
 
-    // compute a little offset to consider also length of printed file sizes (and a spece between label and value)
-    int offset {};
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
-    offset = std::max(offset, painter->fontMetrics().horizontalAdvance(sSize_inU + " "));
-    offset = std::max(offset, painter->fontMetrics().horizontalAdvance(sDown_inU + " "));
-    offset = std::max(offset, painter->fontMetrics().horizontalAdvance(sRema_inU + " "));
-#else
-    offset = std::max(offset, painter->width().horizontalAdvance(sSize_inU + " "));
-    offset = std::max(offset, painter->width().horizontalAdvance(sDown_inU + " "));
-    offset = std::max(offset, painter->width().horizontalAdvance(sRema_inU + " "));
-#endif
-    offset /= 2; // don't ask me the reason of "/ 2", it seems to work...
-
-    // offset = painter->fontMetrics().horizontalAdvance("999.9 ") / 2;
-
-    pathLabels.addText(100 - (lenTot + offset), 34, p_fontLabel, tr("Total"));
-    pathLabels.addText(100 - (lenDow + offset), 46, p_fontLabel, tr("Downloaded"));
-    pathLabels.addText(100 - (lenRem + offset), 58, p_fontLabel, tr("Remaining"));
+    pathLabels.addText(x_size_value - lenTot, 34, p_fontLabel, tr("Total"));
+    pathLabels.addText(x_size_value - lenDow, 46, p_fontLabel, tr("Downloaded"));
+    pathLabels.addText(x_size_value - lenRem, 58, p_fontLabel, tr("Remaining"));
     painter->drawPath(pathLabels);
 
     // Indicators
 
     painter->setFont(p_indicatorFont);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
-    int lenSize = painter->fontMetrics().horizontalAdvance(sSize_inU);
-    int lenDown = painter->fontMetrics().horizontalAdvance(sDown_inU);
-    int lenRema = painter->fontMetrics().horizontalAdvance(sRema_inU);
-#else
-    int lenSize = painter->fontMetrics().width(sSize_inU);
-    int lenDown = painter->fontMetrics().width(sDown_inU);
-    int lenRema = painter->fontMetrics().width(sRema_inU);
-#endif
     QPainterPath pathGreenIndicators;
     painter->setBrush(QColor(7,252,18));
-    pathGreenIndicators.addText(124-lenSize, 34, p_indicatorFont, sSize_inU);
-    pathGreenIndicators.addText(126, 34, p_indicatorUnitFont, sSize_ULabel);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
+    int precise_size_value_length = painter->fontMetrics().horizontalAdvance(sSize_inU + QString(" "));
+    int precise_down_value_length = painter->fontMetrics().horizontalAdvance(sDown_inU + QString(" "));
+    int precise_rema_value_length = painter->fontMetrics().horizontalAdvance(sRema_inU + QString(" "));
+#else
+    int precise_size_value_length = painter->fontMetrics().width().horizontalAdvance(sSize_inU + QString(" "));
+    int precise_down_value_length = painter->fontMetrics().width().horizontalAdvance(sDown_inU + QString(" "));
+    int precise_rema_value_length = painter->fontMetrics().width().horizontalAdvance(sRema_inU + QString(" "));
+#endif
+    int precise_x_size_value = x_size_UM - precise_size_value_length;
+    int precise_x_down_value = x_size_UM - precise_down_value_length;
+    int precise_x_rema_value = x_size_UM - precise_rema_value_length;
+
+    pathGreenIndicators.addText(precise_x_size_value, 34, p_indicatorFont, sSize_inU);
+    pathGreenIndicators.addText(x_size_UM, 34, p_indicatorUnitFont, sSize_ULabel);
     painter->drawPath(pathGreenIndicators);
 
     QPainterPath pathOrangeIndicators;
     painter->setBrush(QColor(255,196,0));
-    pathOrangeIndicators.addText(124-lenDown, 46, p_indicatorFont, sDown_inU);
-    pathOrangeIndicators.addText(126, 46, p_indicatorUnitFont, sDown_ULabel);
+    pathOrangeIndicators.addText(precise_x_down_value, 46, p_indicatorFont, sDown_inU);
+    pathOrangeIndicators.addText(x_size_UM, 46, p_indicatorUnitFont, sDown_ULabel);
     painter->drawPath(pathOrangeIndicators);
 
     QPainterPath pathBluIndicators;
     painter->setBrush(QColor(0,144,255));
-    pathBluIndicators.addText(124-lenRema, 58, p_indicatorFont, sRema_inU);
-    pathBluIndicators.addText(126, 58, p_indicatorUnitFont, sRema_ULabel);
+    pathBluIndicators.addText(precise_x_rema_value, 58, p_indicatorFont, sRema_inU);
+    pathBluIndicators.addText(x_size_UM, 58, p_indicatorUnitFont, sRema_ULabel);
     painter->drawPath(pathBluIndicators);
 
     // LOAD INDICATORS

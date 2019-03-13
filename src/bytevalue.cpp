@@ -53,7 +53,7 @@ CByteValue::binaryUnit_t CByteValue::rank_binaryUnit(const bytevalue_t& value_in
     return CByteValue::binaryUnit_t::B;
 }
 
-
+#if 0
 void convertToRankValueAndGetStrings_decimal(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label)
 {
     double numeric_rank_value {};
@@ -117,4 +117,63 @@ void convertToRankValueAndGetStrings_binary(const CByteValue::bytevalue_t v, std
     std::wostringstream o;
     o << std::setw(4) << std::setprecision(3) << numeric_rank_value;
     got_rank_value = o.str();
+}
+#endif
+
+template<>
+void CByteValue::convertToRankValueAndGetStrings_decimal<std::string>(const CByteValue::bytevalue_t v, std::string& got_rank_value, std::string& got_rank_label)
+{
+    double numeric_rank_value {};
+    CByteValue::getValueAndRank_decimal<std::string>(v, numeric_rank_value, got_rank_label);
+
+    std::ostringstream o;
+    o << std::setw(4) << std::setprecision(3) << numeric_rank_value;
+    got_rank_value = o.str();
+}
+
+
+template<>
+void CByteValue::convertToRankValueAndGetStrings_decimal<std::wstring>(const CByteValue::bytevalue_t v, std::wstring& got_rank_value, std::wstring& got_rank_label)
+{
+    double numeric_rank_value {};
+    CByteValue::getValueAndRank_decimal<std::wstring>(v, numeric_rank_value, got_rank_label);
+
+    std::wostringstream o;
+    o << std::setw(4) << std::setprecision(3) << numeric_rank_value;
+    got_rank_value = o.str();
+}
+
+template<>
+void CByteValue::convertToRankValueAndGetStrings_decimal<QString>(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label)
+{
+    double numeric_rank_value {};
+    CByteValue::getValueAndRank_decimal<QString>(v, numeric_rank_value, got_rank_label);
+
+    double fract_part = std::modf(numeric_rank_value, &fract_part);
+    if (fract_part != 0.0)
+    {
+        got_rank_value = QString().setNum(numeric_rank_value,'f', 1);
+    }
+    else
+    {
+        got_rank_value = QString("%0").arg(static_cast<int>(numeric_rank_value));
+    }
+}
+
+
+template<>
+void CByteValue::convertToRankValueAndGetStrings_binary<QString>(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label)
+{
+    double numeric_rank_value {};
+    CByteValue::getValueAndRank_binary<QString>(v, numeric_rank_value, got_rank_label);
+
+    double fract_part = std::modf(numeric_rank_value, &fract_part);
+    if (fract_part != 0.0)
+    {
+        got_rank_value = QString().setNum(numeric_rank_value,'f', 1);
+    }
+    else
+    {
+        got_rank_value = QString("%0").arg(static_cast<int>(numeric_rank_value));
+    }
 }
