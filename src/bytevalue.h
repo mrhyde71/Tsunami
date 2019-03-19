@@ -170,10 +170,6 @@ static_assert(3_GB == 3*A_GIGABYTE, "GB failed");
 static_assert(4_TB == 4*A_TERABYTE, "TB failed");
 
 
-// I really hate define but here probably I cannot do any different
-#define CONCAT(A,B) A ## B
-#define TO_WIDE(x) CONCAT(L, #x)
-
 
 constexpr auto LABEL_B = "B";       //! label to use for byte
 
@@ -434,18 +430,70 @@ public:
     }
 
 
+    //!
+    //! \brief convertToRankValueAndGetStrings_decimal Converts specified amount of bytes in a value using the highest rank/unit and returns it and the used unit of measure as strings (decimal system)
+    //!
+    //! This is the base template; currently only implementations using std::string, std::wstring and QString are provided.
+    //!
+    //! \tparam the_string_type  string type to use (must be one among std::string, std::wstring, QString)
+    //!
+    //! \param[in]  v                 amount of bytes to convert
+    //! \param[out] got_rank_value    string returned containing value expressed in unit of measure corresponding to got_rank_value
+    //! \param[out] got_rank_label    string returned containing used unit of measure
+    //!
     template <typename the_string_type>
     static void convertToRankValueAndGetStrings_decimal(const CByteValue::bytevalue_t v, the_string_type& got_rank_value, the_string_type& got_rank_label);
 
+    //!
+    //! \brief convertToRankValueAndGetStrings_decimal Converts specified amount of bytes in a value using the highest rank/unit and returns it and the used unit of measure as strings (binary system)
+    //!
+    //! This is the base template; currently only implementations using std::string, std::wstring and QString are provided.
+    //!
+    //! \tparam the_string_type  string type to use (must be one among std::string, std::wstring, QString)
+    //!
+    //! \param[in]  v                 amount of bytes to convert
+    //! \param[out] got_rank_value    string returned containing value expressed in unit of measure corresponding to got_rank_value
+    //! \param[out] got_rank_label    string returned containing used unit of measure
+    //!
     template <typename the_string_type>
     static void convertToRankValueAndGetStrings_binary(const CByteValue::bytevalue_t v, the_string_type& got_rank_value, the_string_type& got_rank_label);
 
+    //!
+    //! \brief convertToRankValueAndGetStrings_rate Converts specified amount of bytes used to express rates in a value using the highest rank/unit and returns it and the used unit of measure as strings
+    //!
+    //! This is the base template; currently only implementations using std::string, std::wstring and QString are provided.
+    //!
+    //! \note usually rates are expressed using unit of measure based on powers of 10 ("decimal system"), so this is just an alias for convertToRankValueAndGetStrings_decimal
+    //! 
+    //! \tparam the_string_type  string type to use (must be one among std::string, std::wstring, QString)
+    //!
+    //! \param[in]  v                 amount of bytes to convert
+    //! \param[out] got_rank_value    string returned containing value expressed in unit of measure corresponding to got_rank_value
+    //! \param[out] got_rank_label    string returned containing used unit of measure
+    //!
+    //! \sa convertToRankValueAndGetStrings_decimal
+    //! 
     template <typename the_string_type>
     static void convertToRankValueAndGetStrings_rate(const CByteValue::bytevalue_t v, the_string_type& got_rank_value, the_string_type& got_rank_label)
     {
         return CByteValue::convertToRankValueAndGetStrings_decimal<the_string_type>(v, got_rank_value, got_rank_label);
     }
 
+    //!
+    //! \brief convertToRankValueAndGetStrings_size Converts specified amount of bytes used to express file sizes in a value using the highest rank/unit and returns it and the used unit of measure as strings
+    //!
+    //! This is the base template; currently only implementations using std::string, std::wstring and QString are provided.
+    //!
+    //! \note usually rates are expressed using unit of measure based on powers of 2 ("binary system"), so this is just an alias for convertToRankValueAndGetStrings_binary
+    //! 
+    //! \tparam the_string_type  string type to use (must be one among std::string, std::wstring, QString)
+    //!
+    //! \param[in]  v                 amount of bytes to convert
+    //! \param[out] got_rank_value    string returned containing value expressed in unit of measure corresponding to got_rank_value
+    //! \param[out] got_rank_label    string returned containing used unit of measure
+    //!
+    //! \sa convertToRankValueAndGetStrings_decimal
+    //! 
     template <typename the_string_type>
     static void convertToRankValueAndGetStrings_size(const CByteValue::bytevalue_t v, the_string_type& got_rank_value, the_string_type& got_rank_label)
     {
@@ -566,101 +614,17 @@ public:
 
 };
 
-template<>
-inline
-const std::string& CByteValue::decimalUnitLabel<std::string>(CByteValue::decimalUnit_t dut)
-{
-    static const std::map<CByteValue::decimalUnit_t, std::string> labels{
-        {CByteValue::decimalUnit_t::B, LABEL_B},
-        {CByteValue::decimalUnit_t::kB, LABEL_kB},
-        {CByteValue::decimalUnit_t::MB, LABEL_MB},
-        {CByteValue::decimalUnit_t::GB, LABEL_GB},
-        {CByteValue::decimalUnit_t::TB, LABEL_TB},
-    };
+// here follows declaration of extern templates used for template implementations/specializations using std::string, std::wstring, QString
 
-    return labels.at(dut);
-}
 
 template<>
-inline
-const std::string& CByteValue::binaryUnitLabel<std::string>(CByteValue::binaryUnit_t dut)
-{
-    static const std::map<CByteValue::binaryUnit_t, std::string> labels{
-        {CByteValue::binaryUnit_t::B, LABEL_B},
-        {CByteValue::binaryUnit_t::KiB, LABEL_KiB},
-        {CByteValue::binaryUnit_t::MiB, LABEL_MiB},
-        {CByteValue::binaryUnit_t::GiB, LABEL_GiB},
-        {CByteValue::binaryUnit_t::TiB, LABEL_TiB},
-    };
-
-    return labels.at(dut);
-}
+const std::string& CByteValue::decimalUnitLabel<std::string>(CByteValue::decimalUnit_t dut);
 
 template<>
-inline
-const std::wstring& CByteValue::decimalUnitLabel<std::wstring>(CByteValue::decimalUnit_t dut)
-{
-    static const std::map<CByteValue::decimalUnit_t, std::wstring> labels{
-        {CByteValue::decimalUnit_t::B, TO_WIDE(LABEL_B)},
-        {CByteValue::decimalUnit_t::kB, TO_WIDE(LABEL_kB)},
-        {CByteValue::decimalUnit_t::MB, TO_WIDE(LABEL_MB)},
-        {CByteValue::decimalUnit_t::GB, TO_WIDE(LABEL_GB)},
-        {CByteValue::decimalUnit_t::TB, TO_WIDE(LABEL_TB)},
-    };
-
-    return labels.at(dut);
-
-}
+const std::wstring& CByteValue::decimalUnitLabel<std::wstring>(CByteValue::decimalUnit_t dut);
 
 template<>
-inline
-const std::wstring& CByteValue::binaryUnitLabel<std::wstring>(CByteValue::binaryUnit_t dut)
-{
-    static const std::map<CByteValue::binaryUnit_t, std::wstring> labels{
-        {CByteValue::binaryUnit_t::B, TO_WIDE(LABEL_B)},
-        {CByteValue::binaryUnit_t::KiB, TO_WIDE(LABEL_KiB)},
-        {CByteValue::binaryUnit_t::MiB, TO_WIDE(LABEL_MiB)},
-        {CByteValue::binaryUnit_t::GiB, TO_WIDE(LABEL_GiB)},
-        {CByteValue::binaryUnit_t::TiB, TO_WIDE(LABEL_TiB)},
-    };
-
-    return labels.at(dut);
-}
-
-template<>
-inline
-const QString& CByteValue::decimalUnitLabel<QString>(CByteValue::decimalUnit_t dut)
-{
-    static const std::map<CByteValue::decimalUnit_t, QString> labels{
-        {CByteValue::decimalUnit_t::B, LABEL_B},
-        {CByteValue::decimalUnit_t::kB, LABEL_kB},
-        {CByteValue::decimalUnit_t::MB, LABEL_MB},
-        {CByteValue::decimalUnit_t::GB, LABEL_GB},
-        {CByteValue::decimalUnit_t::TB, LABEL_TB},
-    };
-
-    return labels.at(dut);
-}
-
-template<>
-inline
-const QString& CByteValue::binaryUnitLabel<QString>(CByteValue::binaryUnit_t dut)
-{
-    static const std::map<CByteValue::binaryUnit_t, QString> labels{
-        {CByteValue::binaryUnit_t::B, LABEL_B},
-        {CByteValue::binaryUnit_t::KiB, LABEL_KiB},
-        {CByteValue::binaryUnit_t::MiB, LABEL_MiB},
-        {CByteValue::binaryUnit_t::GiB, LABEL_GiB},
-        {CByteValue::binaryUnit_t::TiB, LABEL_TiB},
-    };
-
-    return labels.at(dut);
-}
-
-/*
-void convertToRankValueAndGetStrings_decimal(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label);
-void convertToRankValueAndGetStrings_binary(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label);
-*/
+const QString& CByteValue::decimalUnitLabel<QString>(CByteValue::decimalUnit_t dut);
 
 template <>
 void CByteValue::convertToRankValueAndGetStrings_decimal<std::string>(const CByteValue::bytevalue_t v, std::string& got_rank_value, std::string& got_rank_label);
@@ -672,6 +636,15 @@ template <>
 void CByteValue::convertToRankValueAndGetStrings_decimal<QString>(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label);
 
 extern template
+const std::string& CByteValue::decimalUnitLabel<std::string>(CByteValue::decimalUnit_t dut);
+
+extern template
+const std::wstring& CByteValue::decimalUnitLabel<std::wstring>(CByteValue::decimalUnit_t dut);
+
+extern template
+const QString& CByteValue::decimalUnitLabel<QString>(CByteValue::decimalUnit_t dut);
+
+extern template
 void CByteValue::convertToRankValueAndGetStrings_decimal<std::string>(const CByteValue::bytevalue_t v, std::string& got_rank_value, std::string& got_rank_label);
 
 extern template
@@ -681,6 +654,15 @@ extern template
 void CByteValue::convertToRankValueAndGetStrings_decimal<QString>(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label);
 
 
+
+template<>
+const std::string& CByteValue::binaryUnitLabel<std::string>(CByteValue::binaryUnit_t dut);
+
+template<>
+const std::wstring& CByteValue::binaryUnitLabel<std::wstring>(CByteValue::binaryUnit_t dut);
+
+template<>
+const QString& CByteValue::binaryUnitLabel<QString>(CByteValue::binaryUnit_t dut);
 
 template <>
 void CByteValue::convertToRankValueAndGetStrings_binary<std::string>(const CByteValue::bytevalue_t v, std::string& got_rank_value, std::string& got_rank_label);
@@ -690,6 +672,15 @@ void CByteValue::convertToRankValueAndGetStrings_binary<std::wstring>(const CByt
 
 template <>
 void CByteValue::convertToRankValueAndGetStrings_binary<QString>(const CByteValue::bytevalue_t v, QString& got_rank_value, QString& got_rank_label);
+
+extern template
+const std::string& CByteValue::binaryUnitLabel<std::string>(CByteValue::binaryUnit_t dut);
+
+extern template
+const std::wstring& CByteValue::binaryUnitLabel<std::wstring>(CByteValue::binaryUnit_t dut);
+
+extern template
+const QString& CByteValue::binaryUnitLabel<QString>(CByteValue::binaryUnit_t dut);
 
 extern template
 void CByteValue::convertToRankValueAndGetStrings_binary<std::string>(const CByteValue::bytevalue_t v, std::string& got_rank_value, std::string& got_rank_label);
