@@ -10,7 +10,7 @@ qreal ChartXYFunction::variantToAbsolute(const QVariant &variant)
     case QVariant::DateTime:
       if(variant.canConvert(QVariant::DateTime))
         {
-        QDateTime puppa=variant.toDateTime();
+        // not used QDateTime puppa=variant.toDateTime();
         ret=(qreal)(variant.toDateTime().toMSecsSinceEpoch());
         }
       break;

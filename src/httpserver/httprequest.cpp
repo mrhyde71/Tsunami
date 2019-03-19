@@ -17,7 +17,7 @@ HttpRequest::HttpRequest(QSettings* settings)
     expectedBodySize=0;
     maxSize=settings->value("maxRequestSize","16000").toInt();
     maxMultiPartSize=settings->value("maxMultiPartSize","1000000").toInt();
-    tempFile=NULL;
+    tempFile=nullptr;
 }
 
 
@@ -46,7 +46,8 @@ void HttpRequest::readRequest(QTcpSocket* socket)
             qWarning("HttpRequest: received broken HTTP request, invalid first line");
             status=abort;
         }
-        else {
+        else
+        {
             method=list.at(0).trimmed();
             path=list.at(1);
             version=list.at(2);
@@ -171,7 +172,7 @@ void HttpRequest::readBody(QTcpSocket* socket)
             qDebug("HttpRequest: receiving multipart body");
         #endif
         // Create an object for the temporary file, if not already present
-        if (tempFile == NULL)
+        if (tempFile == nullptr)
         {
             tempFile = new QTemporaryFile;
         }
@@ -260,8 +261,11 @@ void HttpRequest::extractCookies()
     #ifdef SUPERVERBOSE
         qDebug("HttpRequest: extract cookies");
     #endif
-    foreach(QByteArray cookieStr, headers.values("cookie"))
+    auto val_it = headers.find("cookie");
+    while ((val_it != headers.end()) && (val_it.key() == "cookie"))
     {
+        const QByteArray& cookieStr = val_it.value();
+
         QList<QByteArray> list=HttpCookie::splitCSV(cookieStr);
         foreach(QByteArray part, list)
         {
@@ -323,7 +327,7 @@ HttpRequest::RequestStatus HttpRequest::getStatus() const
 }
 
 
-QByteArray HttpRequest::getMethod() const
+const QByteArray& HttpRequest::getMethod() const
 {
     return method;
 }
@@ -341,7 +345,7 @@ const QByteArray& HttpRequest::getRawPath() const
 }
 
 
-QByteArray HttpRequest::getVersion() const
+const QByteArray& HttpRequest::getVersion() const
 {
     return version;
 }
@@ -357,7 +361,7 @@ QList<QByteArray> HttpRequest::getHeaders(const QByteArray& name) const
     return headers.values(name.toLower());
 }
 
-QMultiMap<QByteArray,QByteArray> HttpRequest::getHeaderMap() const
+const QMultiMap<QByteArray,QByteArray>& HttpRequest::getHeaderMap() const
 {
     return headers;
 }
@@ -372,17 +376,17 @@ QList<QByteArray> HttpRequest::getParameters(const QByteArray& name) const
     return parameters.values(name);
 }
 
-QMultiMap<QByteArray,QByteArray> HttpRequest::getParameterMap() const
+const QMultiMap<QByteArray,QByteArray>& HttpRequest::getParameterMap() const
 {
     return parameters;
 }
 
-QByteArray HttpRequest::getBody() const
+const QByteArray& HttpRequest::getBody() const
 {
     return bodyData;
 }
 
-QByteArray HttpRequest::urlDecode(const QByteArray source)
+QByteArray HttpRequest::urlDecode(const QByteArray& source)
 {
     QByteArray buffer(source);
     buffer.replace('+',' ');
@@ -452,7 +456,7 @@ void HttpRequest::parseMultiPartFile()
         #ifdef SUPERVERBOSE
             qDebug("HttpRequest: reading multpart data");
         #endif
-        QTemporaryFile* uploadedFile=0;
+        QTemporaryFile* uploadedFile=nullptr;
         QByteArray fieldValue;
         while (!tempFile->atEnd() && !finished && !tempFile->error())
         {
@@ -536,17 +540,24 @@ void HttpRequest::parseMultiPartFile()
 }
 
 HttpRequest::~HttpRequest()
-{
-    foreach(QByteArray key, uploadedFiles.keys())
+{    
+    auto map_it = uploadedFiles.begin();
+    while (map_it != uploadedFiles.end())
     {
-        QTemporaryFile* file=uploadedFiles.value(key);
+        QTemporaryFile* file = map_it.value();
+        if (!file)
+        {
+            // should not happen
+            continue;
+        }
         if (file->isOpen())
         {
             file->close();
         }
         delete file;
     }
-    if (tempFile != NULL)
+
+    if (tempFile != nullptr)
     {
         if (tempFile->isOpen())
         {

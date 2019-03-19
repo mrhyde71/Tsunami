@@ -9,7 +9,7 @@ searchwindow::searchwindow(QWidget *parent) :
 
     // setting default tsunami script folder
     QString localTsunami = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
-    localTsunami = QString("%0/%1").arg(localTsunami).arg("script");
+    localTsunami = QString("%0/script").arg(localTsunami);
     p_tsunamiScriptFolder = QDir::toNativeSeparators(localTsunami);
 
 //    if (!QDir(p_tsunamiScriptFolder).exists()) {
@@ -26,7 +26,7 @@ searchwindow::searchwindow(QWidget *parent) :
 //    }
 
     // setting default tsunami cache folder
-    localTsunami = QString("%0/%1").arg(localTsunami).arg("cache");
+    localTsunami = QString("%0/cache").arg(localTsunami);
     p_tsunamiCacheFolder = QDir::toNativeSeparators(localTsunami);
 
 //    if (!QDir(p_tsunamiCacheFolder).exists()) {
@@ -85,7 +85,7 @@ searchwindow::searchwindow(QWidget *parent) :
     sortTable();
 
     p_crawler_thread->start();
-    emit loadProviders();
+    emit loadProviders(); // emit in constructor is not a good idea
 }
 
 searchwindow::~searchwindow()
@@ -130,7 +130,7 @@ void searchwindow::itemFound(const tsuProvider::searchItem item)
     itemName->setData(Qt::EditRole, item.name);
 
     QTableWidgetItem *itemDate = new QTableWidgetItem;
-    uint unixTime = item.date.left(10).toUInt();
+    uint unixTime = item.date.leftRef(10).toUInt();
     if (unixTime == 0) {
         itemDate->setData(Qt::EditRole, "");
     } else {
@@ -328,7 +328,7 @@ void searchwindow::cellClicked(int row, int column)
         QString hash = ui->tableResults->item(row, tableColumns::Hash)->text();
 
         if (magnet.isEmpty() && !hash.isEmpty()) {
-            magnet = QString("%0%1").arg("magnet:?xt=urn:btih:").arg(hash);
+            magnet = QString("%0%1").arg("magnet:?xt=urn:btih:", hash);
         }
 
         emit downloadFromMagnet(magnet);

@@ -124,7 +124,7 @@ void updatemanager::checkUpdate()
         wait(2000);
     }
 
-    QString stringCmd = QString("%0%1%2%3").arg(p_appDir).arg(p_cmd).arg(p_param).arg(p_url);
+    QString stringCmd = QString("%0%1%2%3").arg(p_appDir, p_cmd, p_param, p_url);
     qDebug() << "Executing " << stringCmd;
     p_checkProcess->start(stringCmd);
     p_checkProcess->waitForFinished();
@@ -148,7 +148,7 @@ void updatemanager::checkUpdate()
     QString jsonString = "";
 
     foreach (QString piece, outpieces) {
-        if (piece.left(1) == "{") {
+        if (piece.at(0) == "{") {
             jsonString = piece;
             break;
         }
@@ -201,13 +201,13 @@ void updatemanager::processNewUpdate()
     qInfo("New version available, downloading");
     p_param = " --update=";
 
-    QString stringCmd = QString("%0%1%2%3").arg(p_appDir).arg(p_cmd).arg(p_param).arg(p_url);
+    QString stringCmd = QString("%0%1%2%3").arg(p_appDir, p_cmd, p_param, p_url);
     qDebug() << "Executing " << stringCmd;
     p_updateProcess->start(stringCmd);
 
     // remove www directory
     QString localWww = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
-    localWww = QString("%0/%1").arg(localWww).arg("www");
+    localWww = QString("%0/www").arg(localWww);
     localWww = QDir::toNativeSeparators(localWww);
 
     if (!QDir(localWww).exists()) {
@@ -291,7 +291,7 @@ void updatemanager::updateSearchScripts()
 
     // setting default tsunami script folder
     QString localTsunami = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
-    localTsunami = QString("%0/%1").arg(localTsunami).arg("script");
+    localTsunami = QString("%0/script").arg(localTsunami);
     localTsunami = QDir::toNativeSeparators(localTsunami);
 
     if (!QDir(localTsunami).exists()) {
@@ -313,7 +313,7 @@ void updatemanager::updateSearchScripts()
                 if (scriptsTxt.isNull()) qDebug("scriptsTxt is null");
                 QStringList scriptsList = scriptsTxt.split("\r\n", QString::SkipEmptyParts);
 
-                for (QString script : scriptsList) {
+                for (const QString& script : scriptsList) {
                     QStringList scriptProperties = script.split("\t", QString::SkipEmptyParts);
 
                     if (scriptProperties.length() == 2) {
@@ -327,7 +327,7 @@ void updatemanager::updateSearchScripts()
                         loopScript.exec();
                         if (replyScript->error() == QNetworkReply::NoError) {
                             QByteArray scriptArray = replyScript->readAll();
-                            QFile file(QString("%0/%1").arg(localTsunami).arg(scriptProperties[0]));
+                            QFile file(QString("%0/%1").arg(localTsunami, scriptProperties[0]));
                             file.open(QIODevice::WriteOnly);
                             file.write(scriptArray);
                             file.close();
@@ -365,7 +365,7 @@ void updatemanager::updateSearchScripts()
             if (fileContent.indexOf(textToSearch) > -1) {
                 int startPoint = fileContent.indexOf(textToSearch) + textToSearch.length();
                 int endPoint = fileContent.indexOf("'", startPoint);
-                int actualVersion = fileContent.mid(startPoint, (endPoint-startPoint)).toInt();
+                int actualVersion = fileContent.midRef(startPoint, (endPoint-startPoint)).toInt();
                 QFileInfo fInfo(file);
                 qDebug() << fInfo.fileName() << "=" << fileContent.mid(startPoint, (endPoint-startPoint));
                 fileList[fInfo.fileName()] = actualVersion;
@@ -388,15 +388,20 @@ void updatemanager::updateSearchScripts()
             if (scriptsTxt.isNull()) qDebug("scriptsTxt is null");
             QStringList scriptsList = scriptsTxt.split("\r\n", QString::SkipEmptyParts);
 
-            for (QString script : scriptsList) {
+            for (const QString& script : scriptsList) {
                 qDebug() << "script:" << script;
                 QStringList scriptProperties = script.split("\t", QString::SkipEmptyParts);
 
                 if (scriptProperties.length() == 2) {
-                    qDebug() << QString("%0 = %1").arg(scriptProperties[0]).arg(scriptProperties[1]);
+                    qDebug() << QString("%0 = %1").arg(scriptProperties[0], scriptProperties[1]);
                     int siteScriptVersion = QString(scriptProperties[1]).toInt();
                     // we need to check version now
-                    for (QString fileScriptName : fileList.keys()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+                    for (auto k_it = fileList.keyBegin(); k_it != fileList.keyEnd(); ++k_it) {
+                        const QString& fileScriptName = *k_it;
+#else
+                    for (const QString& fileScriptName : fileList.keys()) {
+#endif
                         if (fileScriptName == scriptProperties[0] && fileList[fileScriptName] < siteScriptVersion) {
                             qDebug() << "new version available for script" << scriptProperties[0] << ", downloading";
                             QString scriptUrl = QString(p_scripts_url).arg(scriptProperties[0]);
@@ -407,7 +412,7 @@ void updatemanager::updateSearchScripts()
                             loopScript.exec();
                             if (replyScript->error() == QNetworkReply::NoError) {
                                 QByteArray scriptArray = replyScript->readAll();
-                                QFile file(QString("%0/%1").arg(localTsunami).arg(scriptProperties[0]));
+                                QFile file(QString("%0/%1").arg(localTsunami, scriptProperties[0]));
                                 file.open(QIODevice::WriteOnly);
                                 file.write(scriptArray);
                                 file.close();
@@ -431,7 +436,7 @@ void updatemanager::updateSearchScripts()
     }
 
     // setting default tsunami cache folder
-    localTsunami = QString("%0/%1").arg(localTsunami).arg("cache");
+    localTsunami = QString("%0/cache").arg(localTsunami);
     localTsunami = QDir::toNativeSeparators(localTsunami);
 
     if (!QDir(localTsunami).exists()) {
@@ -450,7 +455,7 @@ void updatemanager::downloadIndexPage()
     updateSplashMessage("downloading Tsunami web index page");
 
     QString localWww = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
-    localWww = QString("%0/%1").arg(localWww).arg("www");
+    localWww = QString("%0/www").arg(localWww);
     localWww = QDir::toNativeSeparators(localWww);
 
     if (!QDir(localWww).exists()) {

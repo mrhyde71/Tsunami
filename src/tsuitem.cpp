@@ -777,7 +777,7 @@ void tsuItem::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
         }
         if ( (x >= 8 && x <= 120) && (y >= 6 && y <= 17) ) {
              //setToolTip("Click for torrent details");
-            setToolTip(QString("%0\n%1").arg(p_head).arg("Click for torrent details"));
+            setToolTip(QString("%0\n%1").arg(p_head, tr("Click for torrent details")));
             setCursor(Qt::PointingHandCursor);
         }
     }
@@ -814,7 +814,5 @@ QString tsuItem::remainingTime() const
     QString sMin = QString::number(std::floor(minutes));
     QString sSec = QString::number(std::floor(seconds));
 
-    return QString("%1:%2:%3").arg(sHou.rightJustified(2, '0'))
-                              .arg(sMin.rightJustified(2, '0'))
-                              .arg(sSec.rightJustified(2, '0'));
+    return QString("%1:%2:%3").arg(sHou.rightJustified(2, '0'), sMin.rightJustified(2, '0'), sSec.rightJustified(2, '0'));
 }

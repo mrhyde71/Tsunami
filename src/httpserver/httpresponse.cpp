@@ -17,13 +17,13 @@ HttpResponse::HttpResponse(QTcpSocket* socket)
     chunkedMode=false;
 }
 
-void HttpResponse::setHeader(QByteArray name, QByteArray value)
+void HttpResponse::setHeader(const QByteArray& name, const QByteArray& value)
 {
     Q_ASSERT(sentHeaders==false);
     headers.insert(name,value);
 }
 
-void HttpResponse::setHeader(QByteArray name, int value)
+void HttpResponse::setHeader(const QByteArray& name, int value)
 {
     Q_ASSERT(sentHeaders==false);
     headers.insert(name,QByteArray::number(value));
@@ -34,7 +34,7 @@ QMap<QByteArray,QByteArray>& HttpResponse::getHeaders()
     return headers;
 }
 
-void HttpResponse::setStatus(int statusCode, QByteArray description)
+void HttpResponse::setStatus(int statusCode, const QByteArray& description)
 {
     this->statusCode=statusCode;
     statusText=description;
@@ -54,28 +54,37 @@ void HttpResponse::writeHeaders()
     buffer.append(' ');
     buffer.append(statusText);
     buffer.append("\r\n");
-    foreach(QByteArray name, headers.keys())
+
+    for (auto head_it = headers.constBegin(); head_it != headers.constEnd(); ++head_it)
     {
-        buffer.append(name);
+        buffer.append(head_it.key());
         buffer.append(": ");
-        buffer.append(headers.value(name));
+        buffer.append(head_it.value());
         buffer.append("\r\n");
+
     }
-    foreach(HttpCookie cookie,cookies.values())
+
+    for (auto cookie_it = cookies.constBegin(); cookie_it != cookies.constEnd(); ++cookie_it)
     {
         buffer.append("Set-Cookie: ");
-        buffer.append(cookie.toByteArray());
+        buffer.append(cookie_it->toByteArray());
         buffer.append("\r\n");
     }
+
     buffer.append("\r\n");
     writeToSocket(buffer);
     sentHeaders=true;
 }
 
-bool HttpResponse::writeToSocket(QByteArray data)
+bool HttpResponse::writeToSocket(const QByteArray& data)
 {
+    if (socket == nullptr)
+    {
+        return false;
+    }
+
     int remaining=data.size();
-    char* ptr=data.data();
+    const char* ptr=data.data();
     while (socket->isOpen() && remaining>0)
     {
         // If the output buffer has become large, then wait until it has been sent.
@@ -95,7 +104,7 @@ bool HttpResponse::writeToSocket(QByteArray data)
     return true;
 }
 
-void HttpResponse::write(QByteArray data, bool lastPart)
+void HttpResponse::write(const QByteArray& data, bool lastPart)
 {
     Q_ASSERT(sentLastPart==false);
 
@@ -109,10 +118,9 @@ void HttpResponse::write(QByteArray data, bool lastPart)
            // Automatically set the Content-Length header
            headers.insert("Content-Length",QByteArray::number(data.size()));
         }
-
-        // else if we will not close the connection at the end, them we must use the chunked mode.
         else
         {
+            // if we will not close the connection at the end, them we must use the chunked mode.
             QByteArray connectionValue=headers.value("Connection",headers.value("connection"));
             bool connectionClose=QString::compare(connectionValue,"close",Qt::CaseInsensitive)==0;
             if (!connectionClose)
@@ -126,18 +134,15 @@ void HttpResponse::write(QByteArray data, bool lastPart)
     }
 
     // Send data
-    if (data.size()>0)
+    if (!data.isEmpty())
     {
         if (chunkedMode)
         {
-            if (data.size()>0)
-            {
-                QByteArray size=QByteArray::number(data.size(),16);
-                writeToSocket(size);
-                writeToSocket("\r\n");
-                writeToSocket(data);
-                writeToSocket("\r\n");
-            }
+            QByteArray size=QByteArray::number(data.size(),16);
+            writeToSocket(size);
+            writeToSocket("\r\n");
+            writeToSocket(data);
+            writeToSocket("\r\n");
         }
         else
         {
@@ -190,11 +195,14 @@ void HttpResponse::redirect(const QByteArray& url)
 
 void HttpResponse::flush()
 {
-    socket->flush();
+    if (socket)
+    {
+        socket->flush();
+    }
 }
 
 
 bool HttpResponse::isConnected() const
 {
-    return socket->isOpen();
+    return ((socket != nullptr) && socket->isOpen());
 }

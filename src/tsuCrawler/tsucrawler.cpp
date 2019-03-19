@@ -12,7 +12,7 @@ tsuCrawler::tsuCrawler()
 
 tsuCrawler::~tsuCrawler()
 {
-    for (tsuProvider *provider : p_providerList) {
+    for (tsuProvider *provider : qAsConst(p_providerList)) {
         provider->deleteLater();
     }
     p_providerList.clear();
@@ -21,7 +21,7 @@ tsuCrawler::~tsuCrawler()
 
 void tsuCrawler::loadProviders()
 {
-    for (tsuProvider* provider : p_providerList) {
+    for (tsuProvider* provider : qAsConst(p_providerList)) {
         provider->deleteLater();
     }
     p_providerList.clear();
@@ -56,9 +56,9 @@ void tsuCrawler::loadProviders()
 
 }
 
-void tsuCrawler::providerNeedIconDownload(QString providerName)
+void tsuCrawler::providerNeedIconDownload(const QString& providerName)
 {
-    for (tsuProvider *item : p_providerList) {
+    for (auto item : qAsConst(p_providerList)) {
         if (item->getName() == providerName) {
             item->loadIcon();
             break;
@@ -66,7 +66,7 @@ void tsuCrawler::providerNeedIconDownload(QString providerName)
     }
 }
 
-void tsuCrawler::search(const QString textToSearch, const tsuProvider::categories category,
+void tsuCrawler::search(const QString& textToSearch, const tsuProvider::categories category,
                         const int resultsWantedPerProvider, const tsuProvider::sortRules sortToApply)
 {
     p_itemsFoundCount = 0;
@@ -85,17 +85,17 @@ void tsuCrawler::search(const QString textToSearch, const tsuProvider::categorie
 //    });
 }
 
-void tsuCrawler::providerItemFound(const tsuProvider::searchItem item)
+void tsuCrawler::providerItemFound(const tsuProvider::searchItem& item)
 {
     ++p_itemsFoundCount;
     emit itemFound(item);
 }
 
-void tsuCrawler::providerFinishedSearch(const QString providerName)
+void tsuCrawler::providerFinishedSearch(const QString& providerName)
 {
     qDebug() << providerName << "finished";
     int active = 0;
-    for (tsuProvider* provider : p_providerList) {
+    for (tsuProvider* provider : qAsConst(p_providerList)) {
         if (!provider) continue; // should not happen
         if (!provider->isFinished() && provider->isValid() && provider->isActive())
         {
@@ -116,14 +116,14 @@ void tsuCrawler::providerFinishedSearch(const QString providerName)
     }
 }
 
-void tsuCrawler::providerIconDownloaded(const QString providerName, const QPixmap icon)
+void tsuCrawler::providerIconDownloaded(const QString& providerName, const QPixmap& icon)
 {
     emit iconDownloaded(providerName, icon);
 }
 
-void tsuCrawler::changeProviderActivation(QString providerName, bool active)
+void tsuCrawler::changeProviderActivation(const QString& providerName, bool active)
 {
-    for (tsuProvider *provider : p_providerList) {
+    for (tsuProvider *provider : qAsConst(p_providerList)) {
         if (provider->getName() == providerName) {
             provider->setActive(active);
             qDebug() << providerName << "set active" << ((active) ? "true" : "false");
@@ -137,7 +137,7 @@ void tsuCrawler::requestedCancelSearch()
     emit cancelSearch();
 }
 
-QString tsuCrawler::getCachePath() const
+const QString& tsuCrawler::getCachePath() const
 {
     return p_cachePath;
 }
@@ -147,12 +147,12 @@ void tsuCrawler::setCachePath(const QString &value)
     p_cachePath = value;
 }
 
-int tsuCrawler::getProvidersCount()
+int tsuCrawler::getProvidersCount() const
 {
     return p_providerList.count();
 }
 
-QString tsuCrawler::getScriptsPath() const
+const QString& tsuCrawler::getScriptsPath() const
 {
     return p_scriptsPath;
 }

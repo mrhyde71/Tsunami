@@ -44,7 +44,7 @@ void changelog::onCmbChange(const QString &selectedText)
 
     while (!in.atEnd()) {
         QString line = in.readLine();
-        if (line.toUpper().contains("UNRELEASED") || line.isNull() || line.isEmpty()) continue;
+        if (line.isNull() || line.isEmpty() || line.contains("UNRELEASED", Qt::CaseInsensitive)) continue;
 
         if ( line.left(4) == "## [" && archiveRow)
             break;

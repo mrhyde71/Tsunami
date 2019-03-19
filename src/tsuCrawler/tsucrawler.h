@@ -17,36 +17,36 @@ public:
     explicit tsuCrawler();
     ~tsuCrawler();
 
-    void search(const QString textToSearch,
+    void search(const QString& textToSearch,
                 const tsuProvider::categories category,
                 const int resultsWantedPerProvider,
                 const tsuProvider::sortRules sortToApply = tsuProvider::sortRules::siteDefault);
 
-    QString getScriptsPath() const;
+    const QString& getScriptsPath() const;
     void setScriptsPath(const QString &value);
 
-    QString getCachePath() const;
+    const QString& getCachePath() const;
     void setCachePath(const QString &value);
 
-    int getProvidersCount();
+    int getProvidersCount() const;
 
 signals:
     void providerAdded(const tsuProvider *item);
-    void providerNotValid(const QString providerName);
-    void searchRequested(const QString textToSearch, const tsuProvider::categories category, const int resultsWanted, const tsuProvider::sortRules sortToApply);
+    void providerNotValid(const QString& providerName);
+    void searchRequested(const QString& textToSearch, const tsuProvider::categories category, const int resultsWanted, const tsuProvider::sortRules sortToApply);
 
-    void itemFound(const tsuProvider::searchItem item);
+    void itemFound(const tsuProvider::searchItem& item);
     void finishedSearch(int itemsFound, qint64 elapsed);
-    void iconDownloaded(const QString providerName, const QPixmap icon);
+    void iconDownloaded(const QString& providerName, const QPixmap& icon);
     void cancelSearch();
 
 public slots:
     void loadProviders();
-    void providerNeedIconDownload(QString providerName);
-    void providerItemFound(const tsuProvider::searchItem item);
-    void providerFinishedSearch(const QString providerName);
-    void providerIconDownloaded(const QString providerName, const QPixmap icon);
-    void changeProviderActivation(QString providerName, bool active);
+    void providerNeedIconDownload(const QString& providerName);
+    void providerItemFound(const tsuProvider::searchItem& item);
+    void providerFinishedSearch(const QString& providerName);
+    void providerIconDownloaded(const QString& providerName, const QPixmap& icon);
+    void changeProviderActivation(const QString& providerName, bool active);
 
     void requestedCancelSearch();
 

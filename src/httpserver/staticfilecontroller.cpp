@@ -32,7 +32,7 @@ StaticFileController::StaticFileController(QSettings* settings, QObject* parent)
 //    }
 
 //    docroot = QString("%0/%1").arg(QDir::currentPath()).arg(docroot);
-    docroot = QString("%0/%1").arg(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)).arg(docroot);
+    docroot = QString("%0/%1").arg(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation), docroot);
     docroot = QDir::toNativeSeparators(docroot);
 
     qDebug("StaticFileController: docroot=%s, encoding=%s, maxAge=%i",qPrintable(docroot),qPrintable(encoding),maxAge);
@@ -142,7 +142,7 @@ void StaticFileController::service(HttpRequest& request, HttpResponse& response)
 
                 // try to download from web
                 QString localWww = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
-                localWww = QString("%0/%1").arg(localWww).arg("www");
+                localWww = QString("%0/www").arg(localWww);
                 localWww = QDir::toNativeSeparators(localWww);
 
                 QStringList parts = file.fileName().split("/");
@@ -154,7 +154,7 @@ void StaticFileController::service(HttpRequest& request, HttpResponse& response)
                 QNetworkAccessManager *nam = new QNetworkAccessManager();
 
                 if (path.left(1) == "/" ) path = path.mid(1);
-                QString stringUrl = QString("%0%1").arg(downloadUrl).arg(path.data());//.replace("//", "/");
+                QString stringUrl = QString("%0%1").arg(downloadUrl, path.data());//.replace("//", "/");
 
                 QUrl url(stringUrl);
                 qDebug() << "requested url" << url;

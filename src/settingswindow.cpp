@@ -305,6 +305,6 @@ void settingswindow::on_settingsMenu_currentItemChanged(QListWidgetItem *current
 
 void settingswindow::on_btnOpenWeb_released()
 {
-    QString link = QString("http://%0:%1").arg(settings.value("listener/host", "localhost").toString()).arg(settings.value("listener/port", 8080).toString());
+    QString link = QString("http://%0:%1").arg(settings.value("listener/host", "localhost").toString(), settings.value("listener/port", 8080).toString());
     QDesktopServices::openUrl(QUrl(link));
 }

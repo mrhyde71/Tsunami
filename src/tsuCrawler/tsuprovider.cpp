@@ -120,7 +120,7 @@ void tsuProvider::setScriptFile(const QString &value)
                 QString iconUrl = sc_iterator.value().toString();
                 if (!iconUrl.isEmpty()) {
                     if (iconUrl.left(4) != "http") {
-                        iconUrl = QString("%0%1").arg(p_urls[0]).arg(iconUrl);
+                        iconUrl = QString("%0%1").arg(p_urls[0], iconUrl);
                     }
                     p_siteIconUrl = QUrl(iconUrl);
                 }
@@ -288,7 +288,7 @@ void tsuProvider::doSearch()
         p_reply = p_namPage->post(request, postData);
         ReplyTimeout::set(p_reply, p_timeoutMilliseconds);
     } else {
-        QString sUrl = QString("%0%1").arg(urlPath).arg(searchPath);
+        QString sUrl = QString("%0%1").arg(urlPath, searchPath);
         QUrl url(sUrl);
         QNetworkRequest request(url);
         qDebug() << "requesting" << sUrl;
@@ -404,7 +404,7 @@ tsuProvider::searchItem tsuProvider::parseColumn(const QList<QString> columns)
     si.magnet = retVal.property("magnet").toString();
 
     if (si.link.left(4) != "http") {
-        si.link = QString("%0%1").arg(p_urls[p_actualUrlIndex]).arg(si.link);
+        si.link = QString("%0%1").arg(p_urls[p_actualUrlIndex], si.link);
     }
 
     return si;
@@ -420,7 +420,7 @@ void tsuProvider::downloadPageFinished(QNetworkReply *reply)
     }
 
     if (reply->error() != QNetworkReply::NoError) {
-        qWarning() << QString("%0 cannot download page, error %1").arg(p_name).arg(reply->errorString());
+        qWarning() << QString("%0 cannot download page, error %1").arg(p_name, reply->errorString());
         p_valid = false;
         setFinished(true);
 //        reply->deleteLater();
@@ -459,7 +459,7 @@ void tsuProvider::downloadIconFinished(QNetworkReply *reply)
         }
     } else {
 //        p_siteIcon = QIcon(QApplication::style()->standardIcon(QStyle::SP_MessageBoxCritical));
-        qInfo() << QString("%0 cannot download icon, error %1").arg(p_name).arg(reply->errorString());
+        qInfo() << QString("%0 cannot download icon, error %1").arg(p_name, reply->errorString());
     }
 }
 
