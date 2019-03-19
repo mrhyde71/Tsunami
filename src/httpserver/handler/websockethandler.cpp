@@ -1,6 +1,6 @@
 #include "websockethandler.h"
 
-webSocketHandler::webSocketHandler(QHostAddress host, quint16 port, bool debug, QObject *parent) :
+webSocketHandler::webSocketHandler(const QHostAddress& host, quint16 port, bool debug, QObject *parent) :
     QObject(parent),
     m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Tsunami Web Server"),
                                             QWebSocketServer::NonSecureMode, this)),
@@ -46,9 +46,9 @@ void webSocketHandler::close()
     qDeleteAll(m_clients.begin(), m_clients.end());
 }
 
-bool webSocketHandler::isListening()
+bool webSocketHandler::isListening() const
 {
-    return (m_pWebSocketServer != NULL && m_pWebSocketServer->isListening());
+    return ((m_pWebSocketServer != nullptr) && m_pWebSocketServer->isListening());
 }
 
 void webSocketHandler::onNewConnection()
@@ -81,7 +81,7 @@ void webSocketHandler::onNewConnection()
     if (m_debug) qDebug() << "socket" << m_clients.count() << "connected:" << pSocket;
 }
 
-void webSocketHandler::processTextMessage(QString message)
+void webSocketHandler::processTextMessage(const QString& message)
 {
 //    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (m_debug)
@@ -91,7 +91,7 @@ void webSocketHandler::processTextMessage(QString message)
 //    }
 }
 
-void webSocketHandler::processBinaryMessage(QByteArray message)
+void webSocketHandler::processBinaryMessage(const QByteArray& message)
 {
 //    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (m_debug)
@@ -112,7 +112,7 @@ void webSocketHandler::socketDisconnected()
     }
 }
 
-void webSocketHandler::sendMessage(QString message)
+void webSocketHandler::sendMessage(const QString& message)
 {
 //    qDebug() << "send message to" << id;
 //    for (int i = 0; i < m_clients.count(); i++) {

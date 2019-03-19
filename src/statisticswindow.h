@@ -24,12 +24,12 @@ public:
 //public slots:
 
 private:
-    Ui::statisticswindow *ui;
-    QStandardItemModel *model;
-    ChartXY *chart;
+    Ui::statisticswindow *ui{};
+    QStandardItemModel *model{};
+    ChartXY *chart{};
 
-    void setupModel(void);
-    void setupChart(void);
+    void setupModel();
+    void setupChart();
     void changeEvent(QEvent *e);
 
 };

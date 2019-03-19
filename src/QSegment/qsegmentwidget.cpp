@@ -124,7 +124,7 @@ void QSegmentWidget::DrawCylinder(const Cylinder &cyl,
 void QSegmentWidget::DrawSegments(QPainter *painter,
   const SegmentList &s, qreal radius)
 {
-  for (SegmentList::const_iterator i = s.begin(); i != s.end(); i++) {
+  for (SegmentList::const_iterator i = s.begin(); i != s.end(); ++i) {
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
     QBrush b(i->color);

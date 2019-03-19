@@ -19,39 +19,47 @@ class PreviewPlayer : public QObject
 {
     Q_OBJECT
 
+// member variables
+private:
 #ifdef LIBVLC
     libvlc_instance_t *vlcInstance;
     libvlc_media_player_t *mediaPlayer;
     libvlc_media_t *media;
-    bool isPlaying;
 #else
-    VlcInstance *vlcInstance;
+    VlcInstance *vlcInstance {};
     VlcMedia *media = Q_NULLPTR;
-    float actualPosition;
-    int length;
+    float actualPosition{};
+    int length{};
 #endif
+
+    int rewindHiddenValueInSeconds{};
+
+public:
+    bool isPlaying{};
+    VlcMediaPlayer *mediaPlayer{};
+
+
+// methods
+
 public:
 #ifdef LIBVLC
     explicit PreviewPlayer(QObject *parent = nullptr);
 #else
     explicit PreviewPlayer(VlcVideoDelegate *videoArea, QObject *parent = nullptr);
 #endif
-    VlcMediaPlayer *mediaPlayer;
     ~PreviewPlayer();
     //float GetTimelinePosition();
     //int GetVolume();
 
-    bool isPlaying;
     void ResetCurrentMedia();
     void rewindForHidden();
-    int rewindHiddenValueInSeconds;
 signals:
 
 public slots:
 #ifdef LIBVLC
-    void playFile(QString file, WId windowId);
+    void playFile(const QString& file, WId windowId);
 #else
-    void playFile(QString file);
+    void playFile(const QString& file);
     void playPause();
 #endif
     //void changeVolume(int newVolume);

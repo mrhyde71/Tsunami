@@ -51,7 +51,7 @@ public:
       Split a string list into parts, where each part is delimited by semicolon.
       Semicolons within double quotes are skipped. Double quotes are removed.
     */
-    static QList<QByteArray> splitCSV(const QByteArray source);
+    static QList<QByteArray> splitCSV(const QByteArray& source);
 
     /** Set the name of this cookie */
     void setName(const QByteArray name);

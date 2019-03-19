@@ -29,24 +29,28 @@ void statisticswindow::updateStats(const QPair<int, int> &values)
     newRow.append(new QStandardItem());
     newRow.append(new QStandardItem());
     newRow.append(new QStandardItem());
-    model->appendRow(newRow);
 
-    int lastRowIndex = model->rowCount()-1;
-    model->setData(model->index(lastRowIndex,0),QVariant(QDateTime::currentDateTime()));
-    if (values.first > 0 ) {
-        model->setData(model->index(lastRowIndex,1),values.first);
-    } else {
-        model->setData(model->index(lastRowIndex,1), 1);
-    }
-    model->setData(model->index(lastRowIndex,1),QColor(0,255,0),Qt::DecorationRole);
-    if (values.second > 0 ) {
-        model->setData(model->index(lastRowIndex,2),values.second);
-    } else {
-        model->setData(model->index(lastRowIndex,2), 1);
-    }
-    model->setData(model->index(lastRowIndex,2),QColor(255,0,0),Qt::DecorationRole);
+    if (model)
+    {
+        model->appendRow(newRow);
 
-    if (model->rowCount() > 100) { model->removeRow(0); }
+        int lastRowIndex = model->rowCount()-1;
+        model->setData(model->index(lastRowIndex,0),QVariant(QDateTime::currentDateTime()));
+        if (values.first > 0 ) {
+            model->setData(model->index(lastRowIndex,1),values.first);
+        } else {
+            model->setData(model->index(lastRowIndex,1), 1);
+        }
+        model->setData(model->index(lastRowIndex,1),QColor(0,255,0),Qt::DecorationRole);
+        if (values.second > 0 ) {
+            model->setData(model->index(lastRowIndex,2),values.second);
+        } else {
+            model->setData(model->index(lastRowIndex,2), 1);
+        }
+        model->setData(model->index(lastRowIndex,2),QColor(255,0,0),Qt::DecorationRole);
+
+        if (model->rowCount() > 100) { model->removeRow(0); }
+    }
 
     chart->updateChart();
 }
@@ -55,6 +59,12 @@ void statisticswindow::setupModel()
 {
 //    int i;
 //    QDateTime date_time=QDateTime::currentDateTime();
+
+    if (model)
+    {
+        delete model;
+        model = nullptr;
+    }
 
     model=new QStandardItemModel(1,3,this);
     model->setHeaderData(0, Qt::Horizontal,tr("X"));

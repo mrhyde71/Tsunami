@@ -85,7 +85,7 @@ signals:
     void finished(const QString providerName);
 
 public slots:
-    void search(const QString text, const tsuProvider::categories cat, const int resultsWantedPerProvider, const tsuProvider::sortRules sortToApply);
+    void search(const QString& text, const tsuProvider::categories cat, const int resultsWantedPerProvider, const tsuProvider::sortRules sortToApply);
     void cancelSearch();
 
 private:
@@ -122,8 +122,8 @@ private:
     void doSearch();
     void processPage();
     QList<QString> splitRows();
-    QList<QString> splitColumns(const QString row);
-    tsuProvider::searchItem parseColumn(const QList<QString> columns);
+    QList<QString> splitColumns(const QString& row);
+    tsuProvider::searchItem parseColumn(const QList<QString>& columns);
 
 private slots:
     void downloadPageFinished(QNetworkReply *reply);

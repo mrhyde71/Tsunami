@@ -1,4 +1,4 @@
-    #ifndef TSUEVENTS_H
+#ifndef TSUEVENTS_H
 #define TSUEVENTS_H
 
 #include <string> // needed for std::string

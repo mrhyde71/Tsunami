@@ -214,18 +214,17 @@ void tsuProvider::setScriptFile(const QString &value)
 
 }
 
-void tsuProvider::search(const QString text, const tsuProvider::categories cat, const int resultsWantedPerProvider, const sortRules sortToApply)
+void tsuProvider::search(const QString& text, const tsuProvider::categories cat, const int resultsWantedPerProvider, const sortRules sortToApply)
 {
     // TO DO: multi URL fallback
 
     // No valid URL, what to do?
-    if (p_urls.size() < 1 || !isValid() || !isActive()) {
+    if (p_urls.empty() || !isValid() || !isActive()) {
         qDebug() << p_name << "isValid" << (isValid() ? "true" : "false") << ", isActive" << (isActive() ? "true" : "false");
         p_finished = false; // i don' want to send finished event
         return;
-    } else {
-        setFinished(false);
     }
+    setFinished(false);
 
     p_categoryToUse = cat;
     p_resultsWanted = resultsWantedPerProvider;
@@ -367,7 +366,7 @@ QList<QString> tsuProvider::splitRows(){
     return result;
 }
 
-QList<QString> tsuProvider::splitColumns(const QString row)
+QList<QString> tsuProvider::splitColumns(const QString& row)
 {
 //    qDebug() << "received row" << row;
     QScriptValue scriptfunction = p_scriptEngine->globalObject().property("splitColumns");
@@ -384,7 +383,7 @@ QList<QString> tsuProvider::splitColumns(const QString row)
     return result;
 }
 
-tsuProvider::searchItem tsuProvider::parseColumn(const QList<QString> columns)
+tsuProvider::searchItem tsuProvider::parseColumn(const QList<QString>& columns)
 {
     QScriptValue scriptfunction = p_scriptEngine->globalObject().property("parseColumn");
     QScriptValueList args;

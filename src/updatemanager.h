@@ -62,8 +62,8 @@ private:
     bool p_finished = false;
     bool p_appNeedRestart = false;
 
-    void updateSplashMessage(QString message);
-    void updateDownloadProgress(QString message);
+    void updateSplashMessage(const QString& message);
+    void updateDownloadProgress(const QString& message);
     void processNewUpdate();
     void waitAndClose(int millisecs);
     void wait(int millisecs);

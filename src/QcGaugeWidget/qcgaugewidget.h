@@ -275,11 +275,11 @@ public:
     explicit QcNeedleItem(QObject *parent = 0);
     void draw(QPainter*);
     void setCurrentValue(float value);
-    float currentValue();
-    void setValueFormat(QString format);
-    QString currentValueFormat();
+    float currentValue() const;
+    void setValueFormat(const QString& format);
+    const QString& currentValueFormat() const;
     void setColor(const QColor & color);
-    QColor color();
+    const QColor& color() const;
 
     void setLabel(QcLabelItem*);
     QcLabelItem * label();

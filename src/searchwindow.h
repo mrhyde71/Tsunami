@@ -57,14 +57,14 @@ protected:
 
 public slots:
     void providerAdded(const tsuProvider *item);
-    void providerNotValid(const QString providerName);
+    void providerNotValid(const QString& providerName);
     void itemFound(const tsuProvider::searchItem item);
 //    void iconDownloaded(const QString providerName, const QPixmap icon);
     void finishedSearch(int itemsFound, qint64 elapsed);
 
     void cellClicked(int row, int column);
 
-    void searchRequestFromWeb(const QString textToSearch, const int category);
+    void searchRequestFromWeb(const QString& textToSearch, const int category);
 
 signals:
     void loadProviders();

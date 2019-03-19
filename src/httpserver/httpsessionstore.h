@@ -73,10 +73,10 @@ public:
        @param id ID number of the session
        @see HttpSession::isNull()
     */
-    HttpSession getSession(const QByteArray id);
+    HttpSession getSession(const QByteArray& id);
 
     /** Delete a session */
-    void removeSession(HttpSession session);
+    void removeSession(const HttpSession& session);
 
 protected:
     /** Storage for the sessions */

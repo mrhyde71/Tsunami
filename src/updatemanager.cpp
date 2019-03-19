@@ -119,10 +119,9 @@ void updatemanager::checkUpdate()
         qWarning("Update.exe not found");
         waitAndClose(3000);
         return;
-    } else {
-        updateSplashMessage("Checking for updates");
-        wait(2000);
     }
+    updateSplashMessage("Checking for updates");
+    wait(2000);
 
     QString stringCmd = QString("%0%1%2%3").arg(p_appDir, p_cmd, p_param, p_url);
     qDebug() << "Executing " << stringCmd;
@@ -240,7 +239,6 @@ void updatemanager::updateProcessFinished(int finishCode, QProcess::ExitStatus e
     updateSplashMessage("Update finished, restarting");
     p_appNeedRestart = true;
     waitAndClose(3000);
-    return;
 }
 
 void updatemanager::finishedDownloadingNewSplash(QNetworkReply *reply)
@@ -257,12 +255,12 @@ void updatemanager::finishedDownloadingNewSplash(QNetworkReply *reply)
     }
 }
 
-void updatemanager::updateSplashMessage(QString message) {
+void updatemanager::updateSplashMessage(const QString& message) {
     if (message.isNull() || message.isEmpty()) return;
     p_splash.showMessage(message, Qt::AlignLeft | Qt::AlignBottom, QColor(Qt::white));
 }
 
-void updatemanager::updateDownloadProgress(QString message) {
+void updatemanager::updateDownloadProgress(const QString& message) {
     if (message.isNull() || message.isEmpty()) return;
     p_splash.showMessage(QString("Downloading %0%").arg(message), Qt::AlignLeft | Qt::AlignBottom, QColor(Qt::white));
 }

@@ -327,12 +327,19 @@ QcBackgroundItem::QcBackgroundItem(QObject *parent) :
 
 void QcBackgroundItem::draw(QPainter* painter)
 {
+    if (!painter)
+    {
+        return;
+    }
+
     QRectF tmpRect = resetRect();
     painter->setBrush(Qt::NoBrush);
     QLinearGradient linearGrad(tmpRect.topLeft(), tmpRect.bottomRight());
-    for(int i = 0;i<mColors.size();i++){
-        linearGrad.setColorAt(mColors[i].first,mColors[i].second);
+    for (const auto& color : mColors)
+    {
+        linearGrad.setColorAt(color.first, color.second);
     }
+
     painter->setPen(mPen);
     painter->setBrush(linearGrad);
     painter->drawEllipse(adjustRect(position()));
@@ -402,6 +409,11 @@ QcLabelItem::QcLabelItem(QObject *parent) :
 
 void QcLabelItem::draw(QPainter *painter)
 {
+    if (!painter)
+    {
+        return;
+    }
+
     resetRect();
     QRectF tmpRect = adjustRect(position());
     float r = getRadius(rect());
@@ -467,6 +479,10 @@ QcArcItem::QcArcItem(QObject *parent) :
 
 void QcArcItem::draw(QPainter *painter)
 {
+    if (!painter)
+    {
+        return;
+    }
     resetRect();
     QRectF tmpRect= adjustRect(position());
     float r = getRadius(tmpRect);
@@ -663,15 +679,26 @@ void QcNeedleItem::draw(QPainter *painter)
 
 void QcNeedleItem::setCurrentValue(float value)
 {
-       if(value<mMinValue)
+    if (value < mMinValue)
+    {
         mCurrentValue = mMinValue;
-    else if(value>mMaxValue)
-        mCurrentValue = mMaxValue;
+    }
     else
-        mCurrentValue = value;
+    {
+        if (value > mMaxValue)
+        {
+            mCurrentValue = mMaxValue;
+        }
+        else
+        {
+            mCurrentValue = value;
+        }
+    }
 
-    if(mLabel!=0)
+    if (mLabel)
+    {
         mLabel->setText(QString::number(mCurrentValue, 'f', 1),false);
+    }
 
 // This pull request is not working properly
 //    if(mLabel!=0){
@@ -683,17 +710,19 @@ void QcNeedleItem::setCurrentValue(float value)
     update();
 }
 
-float QcNeedleItem::currentValue()
+float QcNeedleItem::currentValue() const
 {
     return mCurrentValue;
 }
 
-void QcNeedleItem::setValueFormat(QString format){
+void QcNeedleItem::setValueFormat(const QString& format)
+{
     mFormat = format;
     update();
 }
 
-QString QcNeedleItem::currentValueFormat(){
+const QString& QcNeedleItem::currentValueFormat() const
+{
     return mFormat;
 }
 
@@ -703,7 +732,7 @@ void QcNeedleItem::setColor(const QColor &color)
     update();
 }
 
-QColor QcNeedleItem::color()
+const QColor& QcNeedleItem::color() const
 {
     return mColor;
 }

@@ -215,7 +215,7 @@ int HttpCookie::getVersion() const
     return version;
 }
 
-QList<QByteArray> HttpCookie::splitCSV(const QByteArray source)
+QList<QByteArray> HttpCookie::splitCSV(const QByteArray& source)
 {
     bool inString=false;
     QList<QByteArray> list;

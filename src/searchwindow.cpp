@@ -105,7 +105,7 @@ void searchwindow::providerAdded(const tsuProvider *item)
     ui->lblResultsCount->setText(QString("%0 providers loaded").arg(p_crawler->getProvidersCount()));
 }
 
-void searchwindow::providerNotValid(const QString providerName)
+void searchwindow::providerNotValid(const QString& providerName)
 {
     qDebug() << "provider" << providerName << "not valid";
     if (p_crawler->getProvidersCount() == 0) {
@@ -335,7 +335,7 @@ void searchwindow::cellClicked(int row, int column)
     }
 }
 
-void searchwindow::searchRequestFromWeb(const QString textToSearch, const int category)
+void searchwindow::searchRequestFromWeb(const QString& textToSearch, const int category)
 {
 //    tsuProvider::categories cat = static_cast<tsuProvider::categories>(category);
 

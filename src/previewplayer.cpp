@@ -15,7 +15,7 @@ PreviewPlayer::PreviewPlayer(VlcVideoDelegate *videoArea, QObject *parent) : QOb
     vlcInstance = new VlcInstance(VlcCommon::args(), this);
     mediaPlayer = new VlcMediaPlayer(vlcInstance);
     mediaPlayer->setVideoWidget(videoArea);
-    media = 0;
+    media = nullptr;
     isPlaying = false;
     rewindHiddenValueInSeconds = REWIND_VALUE_DEFAULT;
 #endif
@@ -34,7 +34,7 @@ PreviewPlayer::~PreviewPlayer()
 #endif
 }
 #ifdef LIBVLC
-void PreviewPlayer::playFile(QString file, WId windowId)
+void PreviewPlayer::playFile(const QString& file, WId windowId)
 {
 
     media = libvlc_media_new_path(vlcInstance, file.toLocal8Bit().constData());
@@ -64,7 +64,7 @@ void PreviewPlayer::playFile(QString file, WId windowId)
     libvlc_media_player_play(mediaPlayer);
     isPlaying = true;
 #else
-void PreviewPlayer::playFile(QString file)
+void PreviewPlayer::playFile(const QString& file)
 {
     if(file.isEmpty())
         return;
@@ -135,18 +135,20 @@ float PreviewPlayer::GetTimelinePosition()
 
 void PreviewPlayer::playPause()
 {
-    if(media != 0)
+    if (!media)
     {
-        if(isPlaying)
-        {
-            mediaPlayer->pause();
-        }
-        else
-        {
-            mediaPlayer->play();
-        }
-        isPlaying = !isPlaying;
+        return;
     }
+
+    if (isPlaying)
+    {
+        mediaPlayer->pause();
+    }
+    else
+    {
+        mediaPlayer->play();
+    }
+    isPlaying = !isPlaying;
 }
 
 void PreviewPlayer::rewindForHidden()

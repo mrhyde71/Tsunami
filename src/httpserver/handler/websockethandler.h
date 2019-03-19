@@ -11,7 +11,7 @@ class webSocketHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit webSocketHandler(QHostAddress host, quint16 port, bool debug = false, QObject *parent = nullptr);
+    explicit webSocketHandler(const QHostAddress& host, quint16 port, bool debug = false, QObject *parent = nullptr);
     ~webSocketHandler();
 
     void pauseAccepting();
@@ -20,17 +20,17 @@ public:
     void listen();
     void close();
 
-    bool isListening();
+    bool isListening() const;
 
 signals:
     void closed();
 
 public slots:
     void onNewConnection();
-    void processTextMessage(QString message);
-    void processBinaryMessage(QByteArray message);
+    void processTextMessage(const QString& message);
+    void processBinaryMessage(const QByteArray& message);
     void socketDisconnected();
-    void sendMessage(QString message);
+    void sendMessage(const QString& message);
 
 private:
     QWebSocketServer *m_pWebSocketServer;
