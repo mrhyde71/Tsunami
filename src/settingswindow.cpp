@@ -1,6 +1,21 @@
 #include "settingswindow.h"
 #include "ui_settingswindow.h"
 
+void settingswindow::enableSaveCancelButtons(bool enable)
+{
+    if (!ui) {
+        return;
+    }
+
+    if (enable) {
+        ui->btnSave->show();
+        ui->btnCancel->show();
+    }
+    else {
+        ui->btnSave->hide();
+        ui->btnCancel->hide();
+    }
+}
 
 settingswindow::settingswindow(QWidget *parent) :
     QWidget(parent),
@@ -17,7 +32,87 @@ settingswindow::settingswindow(QWidget *parent) :
 
     ui->settingsMenu->item(0)->setSelected(true); // default to General
 
+    enableSaveCancelButtons(false);
+
     loadSettings();
+
+
+    // connect changes of settings value to function to enable/disable buttons SAVE and CANCEL
+    // Please notice that this is a very basic implementation: a better one should compare each time the elements entered in GUI and enable buttons if the "GUI copy" is different from
+    // the settings currently used and, on the contrary, disable buttons if the "GUI copy" is equal to settings currently in use.
+    // With the following basic implementation if:
+    // - user changes settings value from A to B
+    // - _AND_ user changes again value from B to A
+    // the buttons remains visible even if user restored initial state
+
+    // GENERAL
+    connect(ui->txtDownloadPath, &QLineEdit::textEdited,
+            [=](const QString&) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->cmbLanguage, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->cmbDebugLevel, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    // TORRENT
+    connect(ui->numLimitUp, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numLimitUp, QOverload<const QString&>::of(&QSpinBox::valueChanged),
+            [=](const QString&) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numLimitDown, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numLimitDown, QOverload<const QString&>::of(&QSpinBox::valueChanged),
+            [=](const QString&) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numPort, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numPort, QOverload<const QString&>::of(&QSpinBox::valueChanged),
+            [=](const QString&) {enableSaveCancelButtons(true);}
+    );
+
+    // MESSAGES
+    connect(ui->chkMsgDownFinish, &QCheckBox::stateChanged,
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->chkMsgNewChat, &QCheckBox::stateChanged,
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    // WEB
+    connect(ui->chkActivateWeb, &QCheckBox::stateChanged,
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numWebPort, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numWebPort, QOverload<const QString&>::of(&QSpinBox::valueChanged),
+            [=](const QString&) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numWebSocketPort, QOverload<int>::of(&QSpinBox::valueChanged),
+            [=](int) {enableSaveCancelButtons(true);}
+    );
+
+    connect(ui->numWebSocketPort, QOverload<const QString&>::of(&QSpinBox::valueChanged),
+            [=](const QString&) {enableSaveCancelButtons(true);}
+    );
+
 }
 
 settingswindow::~settingswindow()
@@ -152,6 +247,8 @@ void settingswindow::saveSettings()
 
     settings.sync();
 
+    enableSaveCancelButtons(false);
+
     // needed by downloadwindow when a tsuCard emit a downloadFinished event
     qApp->setProperty("msgOnFinish", ui->chkMsgDownFinish->isChecked());
 
@@ -161,9 +258,13 @@ void settingswindow::saveSettings()
 void settingswindow::setLastBrowsedDir(const QString &path)
 {
     settings.setValue("Download/lastBrowsedDir", path);
+
+//    ui->btnSave->show();
+//    ui->btnCancel->show();
+
 }
 
-QString settingswindow::getLastBrowsedDir()
+QString settingswindow::getLastBrowsedDir() const
 {
     return settings.value("Download/lastBrowsedDir", QCoreApplication::applicationDirPath()).toString();
 }
@@ -247,8 +348,10 @@ void settingswindow::on_btnSave_released()
 }
 
 void settingswindow::on_btnCancel_released()
-{
+{    
     loadSettings();
+
+    enableSaveCancelButtons(false);
 }
 
 int settingswindow::getDebugLevelIndex() const
@@ -271,15 +374,26 @@ void settingswindow::changeEvent(QEvent *e)
     }
 }
 
+
+
 void settingswindow::on_btnFolder_released()
 {
     QString dir = QFileDialog::getExistingDirectory(this, tr("Choose download path"),
                                                  ui->txtDownloadPath->text(),
                                                  QFileDialog::ShowDirsOnly
                                                  | QFileDialog::DontResolveSymlinks);
-    if (!dir.isEmpty()) {
-        ui->txtDownloadPath->setText(dir);
+    if (dir.isEmpty()) {
+        // nothing to do
+        return;
     }
+    QString old_value = ui->txtDownloadPath->text();
+    if (old_value == dir) {
+        // value not changed
+        return;
+    }
+    ui->txtDownloadPath->setText(dir);
+
+    enableSaveCancelButtons(true);
 }
 
 void settingswindow::on_commandLinkButton_released()
@@ -300,7 +414,6 @@ void settingswindow::on_settingsMenu_currentItemChanged(QListWidgetItem *current
     ui->frameMessages->setVisible(row == 2);
     ui->frameWeb->setVisible(row == 3);
     ui->frameAbout->setVisible(row == 4);
-
 }
 
 void settingswindow::on_btnOpenWeb_released()

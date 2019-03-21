@@ -21,6 +21,10 @@ class settingswindow : public QWidget
 {
     Q_OBJECT
 
+private:
+    void changeEvent(QEvent *e);
+    void enableSaveCancelButtons(bool enable = true);
+
 public:
     explicit settingswindow(QWidget *parent = 0);
     ~settingswindow();
@@ -29,7 +33,7 @@ public:
     void saveSettings();
 
     void setLastBrowsedDir(const QString &path);
-    QString getLastBrowsedDir();
+    QString getLastBrowsedDir() const;
 
     static QString settingsFileName;
     static QSettings::Format settingsFileFormat;
@@ -38,7 +42,6 @@ public:
 
     int getDebugLevelIndex() const;
     int getCurrentLanguageIndex() const;
-
 signals:
     void sendMessageToStatusBar(const QString & msg);
     void sendRefreshSettings();
@@ -59,7 +62,8 @@ private:
 
     QSettings settings;
 
-    void changeEvent(QEvent *e);
+    bool m_btnSaveEnabled {false};
+    bool m_btnCancelEnabled {false};
 
 //    bool needRestart = false;
 };
