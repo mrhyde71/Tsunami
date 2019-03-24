@@ -232,8 +232,13 @@ void tsuManager::startManager()
     p_session = QSharedPointer<libtorrent::session>::create(settings);
     setNotify();
 
+#if QT_HAS_INCLUDE(<chrono>) || defined(Q_QDOC)
     p_timerUpdate->start(p_timerUpdateInterval);
     p_timerResumeData->start(p_timerResumeDataInterval);
+#else
+    p_timerUpdate->start(static_cast<int>(p_timerUpdateInterval.count()));
+    p_timerResumeData->start(static_cast<int>(p_timerResumeDataInterval.count()));
+#endif
 
     if (!QDir(p_tsunamiSessionFolder).exists()) {
         if (QDir().mkpath(p_tsunamiSessionFolder)) {
