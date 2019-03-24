@@ -1,5 +1,7 @@
 #include "tsumanager.h"
 
+#include <fstream> // needed for std::ofstream
+
 int tsuManager::outstanding_resume_data = 0;
 
 tsuManager::tsuManager()

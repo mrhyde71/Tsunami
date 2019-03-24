@@ -1,6 +1,8 @@
 #ifndef TSUMANAGER_H
 #define TSUMANAGER_H
 
+#include <chrono> // needed for std::chrono::milliseconds
+
 #include <QSharedPointer>
 #include <QObject>
 #include <QDebug>
@@ -21,15 +23,13 @@
 #include <libtorrent/torrent.hpp>
 #include <libtorrent/torrent_status.hpp>
 
-#include <tsuitem.h>
-#include <tsuevents.h>
-#include <tsuCrawler/tsuprovider.h>
+#include "tsuitem.h"
+#include "tsuevents.h"
+#include "tsuCrawler/tsuprovider.h"
 
-#include <src/httpserver/httplistener.h>
-#include <src/httpserver/handler/requesthandler.h>
-#include <src/httpserver/handler/websockethandler.h>
-
-#include <fstream>      // std::ofstream
+#include "src/httpserver/httplistener.h"
+#include "src/httpserver/handler/requesthandler.h"
+#include "src/httpserver/handler/websockethandler.h"
 
 class tsuManager :public QObject
 {
@@ -92,11 +92,11 @@ private:
 
     QString p_tsunamiSessionFolder;
 
-    QTimer *p_timerUpdate;
-    int p_timerUpdateInterval = 1 * 1000; // every second
+    QTimer *p_timerUpdate{};
+    static constexpr std::chrono::milliseconds p_timerUpdateInterval {1 * 1000}; // every second
 
-    QTimer *p_timerResumeData;
-    int p_timerResumeDataInterval = 10 * 60 * 1000; // every ten minutes
+    QTimer *p_timerResumeData{};
+    static constexpr std::chrono::milliseconds p_timerResumeDataInterval {10 * 60 * 1000}; // every ten minutes
 
     // session stat alert index
     int p_net_recv_bytes;
