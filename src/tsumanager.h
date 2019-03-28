@@ -76,15 +76,15 @@ public slots:
 
     // request from www
     void web_requestedSendTorrentList();
-    void web_requestedCancel(const QString hash, const bool deleteFilesToo);
-    void web_requestedPause(const QString hash);
-    void web_requestedResume(const QString hash);
-    void web_requestedFileList(const QString hash);
-    void web_requestedSearch(const QString textToSearch, const int category);
+    void web_requestedCancel(const QString& hash, const bool deleteFilesToo);
+    void web_requestedPause(const QString& hash);
+    void web_requestedResume(const QString& hash);
+    void web_requestedFileList(const QString& hash);
+    void web_requestedSearch(const QString& textToSearch, const int category);
     void web_itemFound(const tsuProvider::searchItem item);
     void web_finishedSearch(int itemsFound, qint64 elapsed, int providersCount);
-    void web_fileUploaded(const QByteArray buffer, const QString fileName);
-    void web_downloadMagnet(const QString magnet);
+    void web_fileUploaded(const QByteArray& buffer, const QString& fileName);
+    void web_downloadMagnet(const QString& magnet);
 
 private:
     void setNotify();
@@ -99,24 +99,24 @@ private:
     static constexpr std::chrono::milliseconds p_timerResumeDataInterval {10 * 60 * 1000}; // every ten minutes
 
     // session stat alert index
-    int p_net_recv_bytes;
-    int p_net_recv_payload_bytes;
-    int p_net_recv_ip_overhead_bytes;
+    int p_net_recv_bytes{};
+    int p_net_recv_payload_bytes{};
+    int p_net_recv_ip_overhead_bytes{};
 
-    int p_net_sent_bytes;
-    int p_net_sent_payload_bytes;
-    int p_net_sent_ip_overhead_bytes;
+    int p_net_sent_bytes{};
+    int p_net_sent_payload_bytes{};
+    int p_net_sent_ip_overhead_bytes{};
 
-    int p_ses_num_downloading_torrents;
-    int p_ses_num_queued_download_torrents;
-    int p_ses_num_upload_only_torrents;
-    int p_ses_num_seeding_torrents;
-    int p_ses_num_queued_seeding_torrents;
-    int p_ses_num_checking_torrents;
-    int p_ses_num_stopped_torrents;
-    int p_ses_num_error_torrents;
+    int p_ses_num_downloading_torrents{};
+    int p_ses_num_queued_download_torrents{};
+    int p_ses_num_upload_only_torrents{};
+    int p_ses_num_seeding_torrents{};
+    int p_ses_num_queued_seeding_torrents{};
+    int p_ses_num_checking_torrents{};
+    int p_ses_num_stopped_torrents{};
+    int p_ses_num_error_torrents{};
 
-    bool p_isWebEnabled = false;
+    bool p_isWebEnabled {false};
     void initializeListener();
     void updateListener();
 //    HttpListener* p_webListener;

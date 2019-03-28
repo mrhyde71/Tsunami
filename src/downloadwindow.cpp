@@ -153,7 +153,7 @@ void downloadwindow::downloadFinished(tsuItem *item)
     qDebug() << QString("received download finished for %0").arg(item->get_Head());
     bool emitMsg = qApp->property("msgOnFinish").toBool();
     if (emitMsg)
-        emit sendPopupInfo("download finished for " + item->get_Head());
+        emit sendPopupInfo(tr("download finished for ") + item->get_Head());
 }
 
 void downloadwindow::showContextMenu(const QPoint &pos)

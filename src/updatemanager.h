@@ -27,15 +27,15 @@ class updatemanager : public QObject
 {
     Q_OBJECT
 public:
-    explicit updatemanager(QObject *parent = 0);
+    explicit updatemanager(QObject *parent = nullptr);
 
     void setAppUrl(QString path);
     void checkUpdate();
 
     void showSplashScreen(int millisecs);
 
-    bool isFinished();
-    bool appNeedRestart();
+    bool isFinished() const;
+    bool appNeedRestart() const;
 
 public slots:
     void readFromUpdateProcess();

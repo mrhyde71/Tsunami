@@ -77,10 +77,10 @@ private slots:
     void on_btnStatPause_toggled(bool checked);
     void on_btnStatError_toggled(bool checked);
 
-    void fileDropped(QString fileName);
+    void fileDropped(const QString& fileName);
     void clipboardChanged();
 
-    void downloadFromSearchPage(const QString magnet);
+    void downloadFromSearchPage(const QString& magnet);
 
     void on_btnPatreon_released();
 

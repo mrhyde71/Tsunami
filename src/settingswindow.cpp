@@ -169,7 +169,7 @@ void settingswindow::loadSettings()
 
     ui->numLimitDown->setValue(downLimit);
     ui->numLimitUp->setValue(upLimit);
-    qDebug() << QString("limits: download %0 KB/s, upload %1 KB/s").arg(downLimit).arg(upLimit);
+    qDebug() << QString("limits: download %0 kB/s, upload %1 kB/s").arg(downLimit).arg(upLimit);
 
     ui->numPort->setValue(port);
     qDebug() << "libtorrent listening on port" << port;
@@ -292,14 +292,15 @@ void settingswindow::on_btnSave_released()
     saveSettings();
 
     // send message settings saved to user
-    emit sendMessageToStatusBar(QString("Settings saved"));
+    emit sendMessageToStatusBar(QString(tr("Settings saved")));
     qInfo("Settings saved");
 
     if (needRestart) {
         qDebug("need restart");
         QMessageBox mbox;
 //        QString msg = QString("<center>Please restart Tsunami to apply new settings<br/>Do you want to restart now?</center>");
-        QString msg = QString("<center>Please restart Tsunami to apply new settings<br/></center>");
+        // QString msg = QString("<center>Please restart Tsunami to apply new settings<br/></center>");
+        QString msg = QString("<center>%0<br/></center>").arg(tr("Please restart Tsunami to apply new settings"));
         mbox.setText(msg);
         mbox.exec();
 //        mbox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );

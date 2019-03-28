@@ -383,7 +383,7 @@ void tsuManager::stopManager()
         std::vector<libtorrent::alert*> alerts;
         p_session->pop_alerts(&alerts);
 
-        if (alerts.size() == 0) continue;
+        if (alerts.empty()) continue;
 
         for (libtorrent::alert* a : alerts)
         {
@@ -391,14 +391,14 @@ void tsuManager::stopManager()
 
 //            qDebug() << QString("  %0:%1").arg(a->what()).arg(a->message().c_str());
 
-            if (a == nullptr || a->type() == 0) continue;
-
             switch (a->type()) {
+            case 0:
+                continue;
+
             case libtorrent::save_resume_data_failed_alert::alert_type:
                 tsuManager::outstanding_resume_data--;
                 break;
             case libtorrent::save_resume_data_alert::alert_type:
-                if (a == nullptr) continue;
                 libtorrent::save_resume_data_alert const* rd = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(a);
                 libtorrent::torrent_handle h = rd->handle;
                 libtorrent::torrent_status st = h.status(libtorrent::torrent_handle::query_save_path | libtorrent::torrent_handle::query_name);
@@ -419,7 +419,7 @@ void tsuManager::stopManager()
                 libtorrent::bencode(std::ostream_iterator<char>(out), *rd->resume_data);
 
                 tsuManager::outstanding_resume_data--;
-                qDebug() << "fastresume saved for" << QString::fromStdString(hex.str());
+                qDebug() << "fastresume saved for" << QString::fromStdString(hex.str()) << " - " << QString::fromStdString(st.name);
                 break;
             }
         }
@@ -464,7 +464,7 @@ void tsuManager::alertsHandler()
                 qDebug() << "added from magnet";  // maybe we want to manage a freeze state until metadata_received_alert arrived
             }
             libtorrent::torrent_status const &ts = ata->handle.status();
-            statusEnum se = static_cast<statusEnum>((int)ts.state);
+            statusEnum se = static_cast<statusEnum>(ts.state);
             if (ts.paused && !ts.auto_managed) se = statusEnum::paused;
             tsuEvents::tsuEvent ev(ata->handle.info_hash().to_string(), ts.name.c_str(), ts.total_done,
                                    ts.total_upload, ts.download_rate, ts.upload_rate, ts.total_wanted,
@@ -766,9 +766,8 @@ void tsuManager::alertsHandler()
                 int uploadRate = 0;
                 int downloadRate = 0;
                 std::vector<libtorrent::torrent_handle> handles = p_session->get_torrents();
-                for (libtorrent::torrent_handle i : handles)
+                for (const libtorrent::torrent_handle& h : handles)
                 {
-                    libtorrent::torrent_handle &h = i;
                     downloadRate += h.status().download_rate;
                     uploadRate += h.status().upload_rate;
                 }
@@ -811,9 +810,8 @@ void tsuManager::postResumeData()
 {
     qDebug() << "post Resume Data";
     std::vector<libtorrent::torrent_handle> handles = p_session->get_torrents();
-    for (libtorrent::torrent_handle i : handles)
+    for (const libtorrent::torrent_handle& h : handles)
     {
-        libtorrent::torrent_handle &h = i;
         if (!h.is_valid()) continue;
         libtorrent::torrent_status s = h.status();
         if (!s.has_metadata) continue;
@@ -888,7 +886,7 @@ void tsuManager::addFromMagnet(const QStringList &&items, const QString &path)
 
             qInfo() << QString("torrent %0 added").arg(str);
         }
-        catch (std::exception &exc)
+        catch (const std::exception &exc)
         {
             qCritical() << QString("addFromMagnet throws %0").arg(exc.what());
         }
@@ -901,7 +899,11 @@ void tsuManager::getCancelRequest(const std::string &hash, const bool deleteFile
         libtorrent::sha1_hash sh(hash);
         libtorrent::torrent_handle th = p_session->find_torrent(sh);
         const libtorrent::torrent_handle &addTh = th;
-        p_session->remove_torrent(addTh, (int)deleteFilesToo);
+        // as regards 2nd parameter of remove_torrent:
+        // - we need to specify the value "libtorrent::session::delete_files" if the caller chose to delete files
+        // - or 0 otherwise
+        // So I just used the conditional/ternary operator ?
+        p_session->remove_torrent(addTh, (deleteFilesToo ? libtorrent::session::delete_files : 0));
         emit torrentDeleted(hash);
 
         if (p_isWebEnabled) {
@@ -915,7 +917,7 @@ void tsuManager::getCancelRequest(const std::string &hash, const bool deleteFile
             p_socketListener->sendMessage(QJsonDocument(obj).toJson(QJsonDocument::Compact));
         }
 
-    } catch (std::exception &exc) {
+    } catch (const std::exception &exc) {
         qCritical() << QString("getCancelRequest throws %0").arg(exc.what());
 //        emit torrentDeleted(hash);
     }
@@ -927,7 +929,7 @@ void tsuManager::getPauseRequest(const std::string &hash)
         libtorrent::sha1_hash sh(hash);
         libtorrent::torrent_handle th = p_session->find_torrent(sh);
         th.pause();
-    } catch (std::exception &exc) {
+    } catch (const std::exception &exc) {
         qCritical() << QString("getPauseRequest throws %0").arg(exc.what());
     }
 }
@@ -938,7 +940,7 @@ void tsuManager::getResumeRequest(const std::string &hash)
         libtorrent::sha1_hash sh(hash);
         libtorrent::torrent_handle th = p_session->find_torrent(sh);
         th.resume();
-    } catch (std::exception &exc) {
+    } catch (const std::exception &exc) {
         qCritical() << QString("getResumeRequest throws %0").arg(exc.what());
     }
 }
@@ -960,18 +962,17 @@ void tsuManager::web_requestedSendTorrentList()
     QJsonArray details;
 
     std::vector<libtorrent::torrent_handle> handles = p_session->get_torrents();
-    for (libtorrent::torrent_handle i : handles)
+    for (const libtorrent::torrent_handle& h : handles)
     {
-        libtorrent::torrent_handle &h = i;
         QJsonObject obj;
         std::stringstream hex;
         hex << h.info_hash();
         QString hash = QString::fromStdString(hex.str());
 
         const libtorrent::torrent_status &s = h.status();
-        statusEnum se = static_cast<statusEnum>((int)s.state);
+        statusEnum se = static_cast<statusEnum>(s.state);
         if (s.paused && !s.auto_managed) se = statusEnum::paused;
-        QString status = "";
+        QString status;
 
         switch (se) {
         case statusEnum::undefined:
@@ -1025,32 +1026,38 @@ void tsuManager::web_requestedSendTorrentList()
     p_socketListener->sendMessage(QJsonDocument(master).toJson(QJsonDocument::Compact));
 }
 
-void tsuManager::web_requestedCancel(const QString hash, const bool deleteFilesToo)
+void tsuManager::web_requestedCancel(const QString& hash, const bool deleteFilesToo)
 {
-    if (p_isWebEnabled) {
-        try {
-            std::stringstream hex;
-            hex << hash.toStdString();
-            libtorrent::sha1_hash sh;
-            hex >> sh;
-            libtorrent::torrent_handle th = p_session->find_torrent(sh);
-            const libtorrent::torrent_handle &addTh = th;
-            p_session->remove_torrent(addTh, (int)deleteFilesToo);
-            emit torrentDeleted(sh.to_string());
+    if (!p_isWebEnabled) {
+        return;
+    }
 
-            QJsonObject obj;
-            obj.insert("action", "deleted");
-            obj.insert("hash", hash);
+    try {
+        std::stringstream hex;
+        hex << hash.toStdString();
+        libtorrent::sha1_hash sh;
+        hex >> sh;
+        libtorrent::torrent_handle th = p_session->find_torrent(sh);
+        const libtorrent::torrent_handle &addTh = th;
+        // as regards 2nd parameter of remove_torrent:
+        // - we need to specify the value "libtorrent::session::delete_files" if the caller chose to delete files
+        // - or 0 otherwise
+        // So I just used the conditional/ternary operator ?
+        p_session->remove_torrent(addTh, (deleteFilesToo ? libtorrent::session::delete_files : 0));
+        emit torrentDeleted(sh.to_string());
 
-            p_socketListener->sendMessage(QJsonDocument(obj).toJson(QJsonDocument::Compact));
+        QJsonObject obj;
+        obj.insert("action", "deleted");
+        obj.insert("hash", hash);
 
-        } catch (std::exception &exc) {
-            qCritical() << QString("web_requestedCancel throws %0").arg(exc.what());
-        }
+        p_socketListener->sendMessage(QJsonDocument(obj).toJson(QJsonDocument::Compact));
+
+    } catch (std::exception &exc) {
+        qCritical() << QString("web_requestedCancel throws %0").arg(exc.what());
     }
 }
 
-void tsuManager::web_requestedPause(const QString hash)
+void tsuManager::web_requestedPause(const QString& hash)
 {
     if (p_isWebEnabled) {
         try {
@@ -1062,70 +1069,72 @@ void tsuManager::web_requestedPause(const QString hash)
             libtorrent::torrent_handle th = p_session->find_torrent(sh);
             th.pause();
 
-        } catch (std::exception &exc) {
+        } catch (const std::exception &exc) {
             qCritical() << QString("web_requestedPause throws %0").arg(exc.what());
         }
     }
 }
 
-void tsuManager::web_requestedResume(const QString hash)
+void tsuManager::web_requestedResume(const QString& hash)
 {
-    if (p_isWebEnabled) {
-        try {
-            std::stringstream hex;
-            hex << hash.toStdString();
-            libtorrent::sha1_hash sh;
-            hex >> sh;
+    if (!p_isWebEnabled) {
+        return;
+    }
+    try {
+        std::stringstream hex;
+        hex << hash.toStdString();
+        libtorrent::sha1_hash sh;
+        hex >> sh;
 
-            libtorrent::torrent_handle th = p_session->find_torrent(sh);
-            th.resume();
+        libtorrent::torrent_handle th = p_session->find_torrent(sh);
+        th.resume();
 
-        } catch (std::exception &exc) {
-            qCritical() << QString("web_requestedResume throws %0").arg(exc.what());
-        }
+    } catch (const std::exception &exc) {
+        qCritical() << QString("web_requestedResume throws %0").arg(exc.what());
     }
 }
 
-void tsuManager::web_requestedFileList(const QString hash)
+void tsuManager::web_requestedFileList(const QString& hash)
 {
-    if (p_isWebEnabled) {
-        try {
-            QJsonObject master;
-            master.insert("action", "filelist");
-            master.insert("Hash", hash);
-            QJsonArray jFiles;
+    if (!p_isWebEnabled) {
+        return;
+    }
+    try {
+        QJsonObject master;
+        master.insert("action", "filelist");
+        master.insert("Hash", hash);
+        QJsonArray jFiles;
 
-            std::stringstream hex;
-            hex << hash.toStdString();
-            libtorrent::sha1_hash sh;
-            hex >> sh;
+        std::stringstream hex;
+        hex << hash.toStdString();
+        libtorrent::sha1_hash sh;
+        hex >> sh;
 
-            libtorrent::torrent_handle th = p_session->find_torrent(sh);
-            libtorrent::file_storage files = th.torrent_file()->files();
-            for (int i = 0; i < files.num_files(); i++)
-            {
-                QJsonObject jFile;
-                jFile.insert("FileName", QString(files.file_name(i).c_str()));
+        libtorrent::torrent_handle th = p_session->find_torrent(sh);
+        libtorrent::file_storage files = th.torrent_file()->files();
+        for (int i = 0; i < files.num_files(); ++i)
+        {
+            QJsonObject jFile;
+            jFile.insert("FileName", QString(files.file_name(i).c_str()));
 #if !defined(Q_OS_MAC) && !defined(Q_OS_LINUX)
-                jFile.insert("Mtime", QJsonValue::fromVariant(QVariant::QVariant((QDateTime::fromSecsSinceEpoch(files.mtime(i))))));
+            jFile.insert("Mtime", QJsonValue::fromVariant(QVariant::QVariant((QDateTime::fromSecsSinceEpoch(files.mtime(i))))));
 #else
-                jFile.insert("Mtime", QJsonValue::fromVariant(QVariant((QDateTime::fromSecsSinceEpoch(files.mtime(i))))));
+            jFile.insert("Mtime", QJsonValue::fromVariant(QVariant((QDateTime::fromSecsSinceEpoch(files.mtime(i))))));
 #endif
-                jFile.insert("Size", QString::number(files.file_size(i)));
-                jFile.insert("PieceSize", QString::number(files.piece_size(i)));
-                jFile.insert("IsValid", files.is_valid());
-                jFiles.append(jFile);
-            }
-            master.insert("files", jFiles);
-            p_socketListener->sendMessage(QJsonDocument(master).toJson(QJsonDocument::Compact));
-
-        } catch (std::exception &exc) {
-            qCritical() << QString("web_requestedFileList throws %0").arg(exc.what());
+            jFile.insert("Size", QString::number(files.file_size(i)));
+            jFile.insert("PieceSize", QString::number(files.piece_size(i)));
+            jFile.insert("IsValid", files.is_valid());
+            jFiles.append(jFile);
         }
+        master.insert("files", jFiles);
+        p_socketListener->sendMessage(QJsonDocument(master).toJson(QJsonDocument::Compact));
+
+    } catch (const std::exception &exc) {
+        qCritical() << QString("web_requestedFileList throws %0").arg(exc.what());
     }
 }
 
-void tsuManager::web_requestedSearch(const QString textToSearch, const int category)
+void tsuManager::web_requestedSearch(const QString& textToSearch, const int category)
 {
     if (p_isWebEnabled) {
         emit web_NeedSearch(textToSearch, category);
@@ -1163,7 +1172,7 @@ void tsuManager::web_finishedSearch(int itemsFound, qint64 elapsed, int provider
     }
 }
 
-void tsuManager::web_fileUploaded(const QByteArray buffer, const QString fileName)
+void tsuManager::web_fileUploaded(const QByteArray& buffer, const QString& fileName)
 {
     qDebug() << "processing" << fileName;
     try
@@ -1199,13 +1208,13 @@ void tsuManager::web_fileUploaded(const QByteArray buffer, const QString fileNam
 
         qInfo() << QString("torrent %0 added").arg(fileName);
     }
-    catch (std::exception &exc)
+    catch (const std::exception &exc)
     {
         qCritical() << QString("addItems throws %0").arg(exc.what());
     }
 }
 
-void tsuManager::web_downloadMagnet(const QString magnet)
+void tsuManager::web_downloadMagnet(const QString& magnet)
 {
     QString magnetIdentifier = "magnet:?xt=urn:btih:";
     QStorageInfo storage = QStorageInfo::root();
@@ -1214,8 +1223,9 @@ void tsuManager::web_downloadMagnet(const QString magnet)
 
     QString newMagnet(magnet.data());
 
-    if (newMagnet.left(magnetIdentifier.length()) != magnetIdentifier)
+    if (newMagnet.left(magnetIdentifier.length()) != magnetIdentifier) {
         newMagnet = QString("%0%1").arg(magnetIdentifier).arg(newMagnet);
+    }
 
     QStringList fileNames;
     fileNames << newMagnet;

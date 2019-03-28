@@ -26,7 +26,7 @@ private:
     void enableSaveCancelButtons(bool enable = true);
 
 public:
-    explicit settingswindow(QWidget *parent = 0);
+    explicit settingswindow(QWidget *parent = nullptr);
     ~settingswindow();
 
     void loadSettings();

@@ -10,17 +10,20 @@
 #include <QMessageBox>
 #include <qmath.h>
 
+#include <libtorrent/torrent_status.hpp>
+
 #include "tsuevents.h"
+
 
 enum statusEnum {
     undefined,
-    checking_files,
-    downloading_metadata,
-    downloading,
-    finished,
-    seeding,
-    allocating,
-    checking_resume_data,
+    checking_files = libtorrent::torrent_status::state_t::checking_files,
+    downloading_metadata = libtorrent::torrent_status::state_t::downloading_metadata,
+    downloading = libtorrent::torrent_status::state_t::downloading,
+    finished = libtorrent::torrent_status::state_t::finished,
+    seeding = libtorrent::torrent_status::state_t::seeding,
+    allocating = libtorrent::torrent_status::state_t::allocating,
+    checking_resume_data = libtorrent::torrent_status::state_t::checking_resume_data,
     paused
 };
 

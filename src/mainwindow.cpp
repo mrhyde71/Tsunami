@@ -62,9 +62,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	
     statusLabel = new QLabel(this);
 
+    // try to load language before the other functions (if not tr("") calls do not work)
+    loadLanguage();
     initializeScreen();
     readSettings();
-    loadLanguage();
 
 
     statusBar()->addPermanentWidget(statusLabel, 0);
@@ -389,7 +390,7 @@ void MainWindow::createTrayIcon()
     m_systrayIcon->setToolTip(getProjectTitle());
     m_systrayIcon->show();
 
-    popupInfo("Welcome to the future!");
+    popupInfo(tr("Welcome to the future!"));
     qInfo("started");
 }
 
@@ -667,12 +668,14 @@ void MainWindow::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 }
 
-void MainWindow::fileDropped(QString fileName)
+void MainWindow::fileDropped(const QString& fileName)
 {
-    QStringList fileNames = fileName.replace("file:///", "").split("\n");
+    QString file_without_prefix(fileName);
+    file_without_prefix.replace("file:///", "");
+    QStringList fileNames = file_without_prefix.split("\n");
     sessionManager->addItems(std::move(fileNames), settingsPage->getDownloadPath());
     ui->btnDownload->released(); // switch to downloadpage
-    updateStatusBarLabel(QString("file %0 added to download").arg(fileName.replace("file:///", "")));
+    updateStatusBarLabel(QString("file %0 added to download").arg(file_without_prefix));
 }
 
 void MainWindow::clipboardChanged()
@@ -689,7 +692,7 @@ void MainWindow::clipboardChanged()
     }
 }
 
-void MainWindow::downloadFromSearchPage(const QString magnet)
+void MainWindow::downloadFromSearchPage(const QString& magnet)
 {
     QStringList fileNames;
     fileNames << magnet;

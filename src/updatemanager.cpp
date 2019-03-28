@@ -34,6 +34,7 @@ updatemanager::updatemanager(QObject *parent) : QObject(parent)
     p_nam = new QNetworkAccessManager(this);
 //    connect(p_nam, &QNetworkAccessManager::finished, this, &updatemanager::finishedDownloadingNewSplash);
 
+
     // download new splashscreen
     QSettings settings(qApp->property("iniFilePath").toString(), QSettings::IniFormat);
     QString downloadUrl = settings.value("Download/splashUrl", p_splash_url).toString();
@@ -115,12 +116,12 @@ void updatemanager::checkUpdate()
     downloadIndexPage();
 
     if ( !QFile::exists(p_appDir + p_cmd) ) {
-        updateSplashMessage("Cannot check for new version");
+        updateSplashMessage(tr("Cannot check for new version"));
         qWarning("Update.exe not found");
         waitAndClose(3000);
         return;
     }
-    updateSplashMessage("Checking for updates");
+    updateSplashMessage(tr("Checking for updates"));
     wait(2000);
 
     QString stringCmd = QString("%0%1%2%3").arg(p_appDir, p_cmd, p_param, p_url);
@@ -130,7 +131,7 @@ void updatemanager::checkUpdate()
     if (p_checkProcess->error() != QProcess::UnknownError)
     {
         qWarning() << "Error checking for updates" << p_checkProcess->state();
-        updateSplashMessage("Error checking for updates, open log for details");
+        updateSplashMessage(tr("Error checking for updates, open log for details"));
         waitAndClose(3000);
         return;
     }
@@ -138,7 +139,7 @@ void updatemanager::checkUpdate()
     QString output(p_checkProcess->readAllStandardOutput());
     if (output.isNull() || output.isEmpty()) {
         qWarning() << "No values from update";
-        updateSplashMessage("Error checking for updates, open log for details");
+        updateSplashMessage(tr("Error checking for updates, open log for details"));
         waitAndClose(3000);
         return;
     }
@@ -155,7 +156,7 @@ void updatemanager::checkUpdate()
 
     if (jsonString.isNull() || jsonString.isEmpty()) {
         qWarning() << "Cannot parse Update output";
-        updateSplashMessage("Error checking for updates, open log for details");
+        updateSplashMessage(tr("Error checking for updates, open log for details"));
         waitAndClose(3000);
         return;
     }
@@ -163,7 +164,7 @@ void updatemanager::checkUpdate()
     QJsonDocument doc(QJsonDocument::fromJson(jsonString.toUtf8()));
     if (doc.isNull() || doc.isEmpty()) {
         qWarning() << "Cannot parse Update document";
-        updateSplashMessage("Error checking for updates, open log for details");
+        updateSplashMessage(tr("Error checking for updates, open log for details"));
         waitAndClose(3000);
         return;
     }
@@ -171,20 +172,19 @@ void updatemanager::checkUpdate()
     QJsonObject json = doc.object();
     if (json.isEmpty()) {
         qWarning() << "Cannot parse Update json";
-        updateSplashMessage("Error checking for updates, open log for details");
+        updateSplashMessage(tr("Error checking for updates, open log for details"));
         waitAndClose(3000);
         return;
     }
 
     if (json["currentVersion"].toString() == json["futureVersion"].toString()) {
-        QString noupdateNeeded("No update needed, latest version installed");
-        qInfo() << noupdateNeeded;
-        updateSplashMessage(noupdateNeeded);
+        qInfo() << "No update needed, latest version installed";
+        updateSplashMessage(tr("No update needed, latest version installed"));
         waitAndClose(3000);
         return;
     }
 
-    updateSplashMessage("Updating to v" + json["futureVersion"].toString());
+    updateSplashMessage(tr("Updating to v") + json["futureVersion"].toString());
     wait(2000);
     processNewUpdate();
 }
@@ -214,12 +214,12 @@ void updatemanager::processNewUpdate()
     }
 }
 
-bool updatemanager::isFinished()
+bool updatemanager::isFinished() const
 {
     return p_finished;
 }
 
-bool updatemanager::appNeedRestart()
+bool updatemanager::appNeedRestart() const
 {
     return p_appNeedRestart;
 }
@@ -236,7 +236,7 @@ void updatemanager::updateProcessFinished(int finishCode, QProcess::ExitStatus e
     Q_UNUSED(finishCode)
     QMetaEnum metaEnum = QMetaEnum::fromType<QProcess::ExitStatus>();
     qDebug() << "update finished " << metaEnum.valueToKey(exitStatus);
-    updateSplashMessage("Update finished, restarting");
+    updateSplashMessage(tr("Update finished, restarting"));
     p_appNeedRestart = true;
     waitAndClose(3000);
 }
@@ -262,7 +262,7 @@ void updatemanager::updateSplashMessage(const QString& message) {
 
 void updatemanager::updateDownloadProgress(const QString& message) {
     if (message.isNull() || message.isEmpty()) return;
-    p_splash.showMessage(QString("Downloading %0%").arg(message), Qt::AlignLeft | Qt::AlignBottom, QColor(Qt::white));
+    p_splash.showMessage(QString("%0 %1%").arg(tr("Downloading"), message), Qt::AlignLeft | Qt::AlignBottom, QColor(Qt::white));
 }
 
 void updatemanager::waitAndClose(int millisecs)
@@ -285,7 +285,7 @@ void updatemanager::close()
 
 void updatemanager::updateSearchScripts()
 {
-    updateSplashMessage("updating search scripts");
+    updateSplashMessage(tr("updating search scripts"));
 
     // setting default tsunami script folder
     QString localTsunami = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
@@ -450,7 +450,7 @@ void updatemanager::updateSearchScripts()
 
 void updatemanager::downloadIndexPage()
 {
-    updateSplashMessage("downloading Tsunami web index page");
+    updateSplashMessage(tr("downloading Tsunami web index page"));
 
     QString localWww = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation); // win -> C:\Users\user\AppData\Local\Tsunami
     localWww = QString("%0/www").arg(localWww);
