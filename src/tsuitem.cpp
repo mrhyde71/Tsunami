@@ -663,11 +663,10 @@ void tsuItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         QMessageBox mbox;
         QString msg = QString(tr("<center>Do you really want to cancel<br/><b>%0</b><br/>from download?</center>")).arg(this->get_Head());
         mbox.setText(msg);
-        mbox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
-
-        mbox.addButton(tr("Yes and delete files too"), QMessageBox::YesRole);
+        mbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         mbox.setButtonText(QMessageBox::Yes, tr("Yes"));
         mbox.setButtonText(QMessageBox::No, tr("No"));
+        mbox.addButton(tr("Yes and delete files too"), QMessageBox::YesRole);
 
         bool proceedWithCancel = false;
 

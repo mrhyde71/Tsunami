@@ -237,11 +237,10 @@ void downloadwindow::deleteSelected()
     QMessageBox mbox;
     QString msg = QString(tr("<center>Do you really want to cancel <b>%0</b> torrents from download?</center>")).arg(listSelected.length());
     mbox.setText(msg);
-    mbox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
-
-    mbox.addButton(tr("Yes and delete files too"), QMessageBox::YesRole);
+    mbox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     mbox.setButtonText(QMessageBox::Yes, tr("Yes"));
     mbox.setButtonText(QMessageBox::No, tr("No"));
+    mbox.addButton(tr("Yes and delete files too"), QMessageBox::YesRole);
 
     bool proceedWithCancel = false;
     bool cancelFilesOnDelete = false;
