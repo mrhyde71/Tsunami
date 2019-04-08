@@ -47,6 +47,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Let's try to fix a little bit the size of PATREON button (with translation may be a pain in...)
+    QString patreon_label_text = QString("        %0").arg(tr("BECOME A PATREON"));
+    QSize patreon_size = ui->btnPatreon->sizeHint();
+    patreon_size.setWidth(ui->btnPatreon->fontMetrics().horizontalAdvance(patreon_label_text));
+    ui->btnPatreon->resize(patreon_size);
+    ui->btnPatreon->setText(patreon_label_text);
+
     //setWindowFilePath(getProjectTitle()); on Mac this makes also the icon visible beside the name in caption
 
     p_session_thread = new QThread();
