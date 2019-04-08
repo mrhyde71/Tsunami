@@ -51,7 +51,11 @@ MainWindow::MainWindow(QWidget *parent) :
     // Let's try to fix a little bit the size of PATREON button (with translation may be a pain in...)
     QString patreon_label_text = QString("        %0").arg(tr("BECOME A PATREON"));
     QSize patreon_size = ui->btnPatreon->sizeHint();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11 , 0))
     patreon_size.setWidth(ui->btnPatreon->fontMetrics().horizontalAdvance(patreon_label_text));
+#else
+    patreon_size.setWidth(ui->btnPatreon->fontMetrics().width(patreon_label_text));
+#endif
     ui->btnPatreon->resize(patreon_size);
     ui->btnPatreon->setText(patreon_label_text);
 
