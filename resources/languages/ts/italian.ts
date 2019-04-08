@@ -94,11 +94,67 @@
     <message>
         <source>Are you sure you want to quit?
 </source>
-        <translation>Sei sicuro di voler chiudere Tsunami?</translation>
+        <translation type="vanished">Sei sicuro di voler chiudere Tsunami?</translation>
     </message>
     <message>
         <source>Welcome to the future!</source>
         <translation>Benvenuto nel futuro!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to quit?</source>
+        <translation>Sei sicuro di voler uscire?</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Sì</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
+    <message>
+        <source>Saving resume data. Please wait.</source>
+        <translation>Salvataggio dati di resume. Attendere.</translation>
+    </message>
+    <message>
+        <source>Downloading %0 torrents (%1 queued)</source>
+        <translation>%0 torrent in download (%1 in coda)</translation>
+    </message>
+    <message>
+        <source>Uploading %0 torrents (%1 queued)</source>
+        <translation>%0 torrent in upload (%1 in coda)</translation>
+    </message>
+    <message>
+        <source>Checking %0 torrents</source>
+        <translation>%0 torrent in check</translation>
+    </message>
+    <message>
+        <source>%0 torrents stopped</source>
+        <translation>%0 torrent in pausa</translation>
+    </message>
+    <message>
+        <source>%0 torrents with error</source>
+        <translation>%0 torrent in errore</translation>
+    </message>
+    <message>
+        <source>accepted %0 from drag &amp; drop</source>
+        <translation>accettato %0 da drag &amp; drop</translation>
+    </message>
+    <message>
+        <source>wrong extension in file %0</source>
+        <translation>estensione errata in file %0</translation>
+    </message>
+    <message>
+        <source>file %0 added to download</source>
+        <translation>File %0 aggiunto in download</translation>
+    </message>
+    <message>
+        <source>file added from magnet</source>
+        <translation>file aggiunto da magnet</translation>
+    </message>
+    <message>
+        <source>file added from search page</source>
+        <translation>file aggiunto da pagina di ricerca</translation>
     </message>
 </context>
 <context>
@@ -109,7 +165,7 @@
     </message>
     <message>
         <source>Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri</translation>
     </message>
     <message>
         <source>PushButton</source>
@@ -117,7 +173,7 @@
     </message>
     <message>
         <source>Play</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduci</translation>
     </message>
     <message>
         <source>Open Video Stream</source>
@@ -180,6 +236,58 @@
         <source>download finished for </source>
         <translation>download terminato per </translation>
     </message>
+    <message>
+        <source>No item selected</source>
+        <translation>Nessun oggetto selezionato</translation>
+    </message>
+    <message>
+        <source>&lt;center&gt;Do you really want to cancel &lt;b&gt;%0&lt;/b&gt; torrents from download?&lt;/center&gt;</source>
+        <translation>&lt;center&gt;Vuoi veramente annullare il download di &lt;b&gt;%0&lt;/b&gt; torrent?&lt;/center&gt;</translation>
+    </message>
+    <message>
+        <source>Yes and delete files too</source>
+        <translation>Sì e cancella anche i file</translation>
+    </message>
+    <message>
+        <source>%0 torrent(s) removed</source>
+        <translation>%0 torrent rimossi</translation>
+    </message>
+    <message>
+        <source>%0 torrent(s) paused</source>
+        <translation>%0 torrent in pausa</translation>
+    </message>
+    <message>
+        <source>%0 torrent(s) resumed</source>
+        <translation>%0 torrent riavviati</translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation>Seleziona tutti</translation>
+    </message>
+    <message>
+        <source>Deselect all</source>
+        <translation>Deseleziona tutti</translation>
+    </message>
+    <message>
+        <source>Pause selected</source>
+        <translation>Metti in pausa i selezionati</translation>
+    </message>
+    <message>
+        <source>Resume selected</source>
+        <translation>Riprendi selezionati</translation>
+    </message>
+    <message>
+        <source>Delete selected...</source>
+        <translation>Cancella i selezionati...</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Sì</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
 </context>
 <context>
     <name>itemDetails</name>
@@ -217,7 +325,7 @@
     </message>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>0</source>
@@ -228,7 +336,7 @@
     <name>searchwindow</name>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Search</source>
@@ -280,11 +388,11 @@
     </message>
     <message>
         <source>Eta</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Leeches</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Size</source>
@@ -300,12 +408,24 @@
         <extracomment>Laber for button in search page when no search operation is in progress and user can start a new one</extracomment>
         <translation>&amp;Cerca</translation>
     </message>
+    <message>
+        <source>%0 providers loaded</source>
+        <translation>%0 provider caricati</translation>
+    </message>
+    <message>
+        <source>%0 result(s) in %1 second(s) using %2 provider(s)</source>
+        <translation>%0 risultati in %1 secondi usando %2 provider</translation>
+    </message>
+    <message>
+        <source>Searching &apos;%0&apos;...</source>
+        <translation>Cerco &apos;%0&apos;...</translation>
+    </message>
 </context>
 <context>
     <name>settingswindow</name>
     <message>
         <source>Info</source>
-        <translation></translation>
+        <translation>Informazioni</translation>
     </message>
     <message>
         <source>Save</source>
@@ -313,7 +433,7 @@
     </message>
     <message>
         <source>Debug</source>
-        <translation></translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Fatal</source>
@@ -409,7 +529,7 @@
     </message>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>General</source>
@@ -441,7 +561,7 @@
         <source>border-color: rgb(168, 168, 168);
 border-width:1px;
 border-style: solid;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source>Settings saved</source>
@@ -457,7 +577,7 @@ border-style: solid;</source>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;.SF NS Text&apos;; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt;&quot;&gt;&lt;br /&gt;Tsunami++&lt;br /&gt;&lt;br /&gt;Proudly presented by &lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:600;&quot;&gt;Adunanza&lt;/span&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt;&quot;&gt; Team:&lt;br /&gt;Hammon, Dax, biuken, skynet, gobne, ricky&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <source> kB/s</source>
@@ -481,7 +601,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Form</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -502,24 +622,43 @@ p, li { white-space: pre-wrap; }
         <source>Click for torrent details</source>
         <translation>Fai click per visualizzare dettagli torrent</translation>
     </message>
+    <message>
+        <source>&lt;center&gt;Do you really want to cancel&lt;br/&gt;&lt;b&gt;%0&lt;/b&gt;&lt;br/&gt;from download?&lt;/center&gt;</source>
+        <translation>&lt;center&gt;Vuoi veramente annullare il download di &lt;br/&gt;&lt;b&gt;%0&lt;/b&gt;&lt;br/&gt;?&lt;/center&gt;</translation>
+    </message>
+    <message>
+        <source>Yes and delete files too</source>
+        <translation>Sì e cancella anche i file</translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation>Sì</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>No</translation>
+    </message>
+</context>
+<context>
+    <name>tsuTreeWidget</name>
+    <message>
+        <source>File Name</source>
+        <translation>Nome File</translation>
+    </message>
 </context>
 <context>
     <name>tsucard</name>
     <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Total</source>
-        <translation>Totale</translation>
+        <translation type="vanished">Totale</translation>
     </message>
     <message>
         <source>Downloaded</source>
-        <translation>Scaricato</translation>
+        <translation type="vanished">Scaricato</translation>
     </message>
     <message>
         <source>Remaining</source>
-        <translation>Rimanente</translation>
+        <translation type="vanished">Rimanente</translation>
     </message>
 </context>
 <context>

@@ -379,10 +379,11 @@ void settingswindow::changeEvent(QEvent *e)
 
 void settingswindow::on_btnFolder_released()
 {
-    QString dir = QFileDialog::getExistingDirectory(this, tr("Choose download path"),
-                                                 ui->txtDownloadPath->text(),
-                                                 QFileDialog::ShowDirsOnly
-                                                 | QFileDialog::DontResolveSymlinks);
+    QString dir = QFileDialog::getExistingDirectory(this,
+                                                    tr("Choose download path"),
+                                                    ui->txtDownloadPath->text(),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks | QFileDialog::DontUseNativeDialog);
+
     if (dir.isEmpty()) {
         // nothing to do
         return;

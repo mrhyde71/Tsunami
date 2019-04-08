@@ -69,7 +69,6 @@ private slots:
 
     void btnMenuClick();
     void btnAddClick();
-    void loadLanguage();
 
     void on_btnStatDown_toggled(bool checked);
     void on_btnStatUp_toggled(bool checked);
@@ -127,5 +126,8 @@ protected:
     void showEvent( QShowEvent * event ) override;
 #endif
 };
+
+const QString& getProjectTitle();
+
 
 #endif // MAINWINDOW_H

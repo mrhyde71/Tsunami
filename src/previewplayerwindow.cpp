@@ -69,7 +69,9 @@ void PreviewPlayerWindow::on_pushButtonOpenFile_clicked()
     QString fileName = QFileDialog::getOpenFileName(this,
                                                     tr("Open Video Stream"),
                                                     (!m_downloadPath.isEmpty() ? m_downloadPath : QDir::currentPath()),
-                                                    QString("%1 (*.mkv *.avi *.mp4 *.mov *.wmv)").arg(tr("Video Files")));
+                                                    QString("%1 (*.mkv *.avi *.mp4 *.mov *.wmv)").arg(tr("Video Files")),
+                                                    nullptr,
+                                                    QFileDialog::DontUseNativeDialog);
     if (!fileName.isEmpty()) {
         previewPlayer->playFile(fileName);
         updatePlayPauseButton();

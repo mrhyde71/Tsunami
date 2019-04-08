@@ -893,7 +893,7 @@ void tsuManager::addFromMagnet(const QStringList &&items, const QString &path)
     }
 }
 
-void tsuManager::getCancelRequest(const std::string &hash, const bool deleteFilesToo)
+void tsuManager::getCancelRequest(const std::string &hash, bool deleteFilesToo)
 {
     try {
         libtorrent::sha1_hash sh(hash);

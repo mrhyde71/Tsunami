@@ -14,7 +14,7 @@ private:
     const QString m_title;
 
 public:
-    CAppTitleString() : m_title(QString("%0 %1").arg(PROJECT).arg(VERSION))
+    CAppTitleString() : m_title(QString("%0 %1").arg(PROJECT).arg(qApp->applicationVersion()))
     {
         qDebug() << QString("TITLE IS <%0>").arg(m_title);
     }
@@ -63,7 +63,6 @@ MainWindow::MainWindow(QWidget *parent) :
     statusLabel = new QLabel(this);
 
     // try to load language before the other functions (if not tr("") calls do not work)
-    loadLanguage();
     initializeScreen();
     readSettings();
 
@@ -99,22 +98,22 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* FROM DOWNLOADPAGE */
     // requested cancel (emitted from a tsucard) goes to sessionManager to remove torrent from libtorrent
-    connect(downloadPage, SIGNAL(sendRequestedCancelToSession(std::string,bool)), sessionManager, SLOT(getCancelRequest(std::string,bool)));//, Qt::QueuedConnection);
+    connect(downloadPage, SIGNAL(sendRequestedCancelToSession(std::string,bool)), sessionManager, SLOT(getCancelRequest(const std::string&, bool)));//, Qt::QueuedConnection);
 
     // requested pause (emitted from a tsucard) goes to sessionManager to pause torrent
-    connect(downloadPage, SIGNAL(sendRequestedPauseToSession(std::string)), sessionManager, SLOT(getPauseRequest(std::string)));//, Qt::QueuedConnection);
+    connect(downloadPage, SIGNAL(sendRequestedPauseToSession(std::string)), sessionManager, SLOT(getPauseRequest(const std::string&)));//, Qt::QueuedConnection);
 
     // requested resume (emitted from a tsucard) goes to sessionManager to resume torrent
-    connect(downloadPage, SIGNAL(sendRequestedResumeToSession(std::string)), sessionManager, SLOT(getResumeRequest(std::string)));//, Qt::QueuedConnection);
+    connect(downloadPage, SIGNAL(sendRequestedResumeToSession(std::string)), sessionManager, SLOT(getResumeRequest(const std::string&)));//, Qt::QueuedConnection);
 
     // popup message goes to Main
-    connect(downloadPage, SIGNAL(sendPopupInfo(QString)), this, SLOT(popupInfo(QString)));//, Qt::QueuedConnection);
+    connect(downloadPage, SIGNAL(sendPopupInfo(QString)), this, SLOT(popupInfo(const QString&)));//, Qt::QueuedConnection);
 
     // update statusBar goes to Main
     connect(downloadPage, SIGNAL(sendMessageToStatusBar(const QString &)), this, SLOT(updateStatusBarLabel(const QString &)));
 
     // file dropped from graphicsscene goes to Main
-    connect(downloadPage, SIGNAL(fileDropped(QString)), this, SLOT(fileDropped(QString)));
+    connect(downloadPage, SIGNAL(fileDropped(QString)), this, SLOT(fileDropped(const QString&)));
 
 
     /* FROM SETTINGSPAGE */
@@ -204,9 +203,12 @@ void MainWindow::updateGauge(const float &downValue, const float &upValue)
 
 void MainWindow::initializeScreen() {
     setWindowIcon(QIcon(":/images/logo_tsunami_tiny.ico"));
+#if defined(TEST_TITLE)
 #if !defined(Q_OS_MAC) && !defined(Q_OS_LINUX)
     setWindowTitle(getProjectTitle());
 #endif
+#endif
+
 //    setWindowFlags(Qt::FramelessWindowHint);
     createTrayIcon();
 
@@ -354,29 +356,6 @@ void MainWindow::writeSettings()
     qDebug() << "Settings wrote";
 }
 
-void MainWindow::loadLanguage()
-{
-//    if (languageIndex.isNull()) {
-//        qDebug() << "MainWindow received empty language, ignoring.";
-//        return;
-//    }
-    int languageIndex = settingsPage->getCurrentLanguageIndex();
-    qDebug() << QString("Requested language index %0").arg(languageIndex);
-
-    bool response = false;
-    if(languageIndex == 1)
-    {
-        response = p_translator.load(":/languages/italian.qm");
-        qDebug() << QString("Requested language index %0 loaded %1").arg(languageIndex).arg((response) ? "true" : "false");
-    }
-    if(languageIndex != 0)
-    {
-        response = QCoreApplication::installTranslator(&p_translator);
-        qDebug() << QString("Requested language index %0 applied %1").arg(languageIndex).arg((response) ? "true" : "false");
-    } else {
-        qDebug("Default language applied");
-    }
-}
 
 void MainWindow::createTrayIcon()
 {
@@ -387,7 +366,7 @@ void MainWindow::createTrayIcon()
     connect(m_systrayIcon, SIGNAL(messageClicked()), this, SLOT(balloonClicked()));
     // End of Icon Menu
     connect(m_systrayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(toggleVisibility(QSystemTrayIcon::ActivationReason)));
-    m_systrayIcon->setToolTip(getProjectTitle());
+    m_systrayIcon->setToolTip(windowTitle());
     m_systrayIcon->show();
 
     popupInfo(tr("Welcome to the future!"));
@@ -494,8 +473,23 @@ void MainWindow::btnMenuClick() {
 
 void MainWindow::btnAddClick()
 {
-    QFileDialog fd(this, tr("Select torrent"), settingsPage->getLastBrowsedDir(), tr("Torrents (*.torrent)"));
+    /*
+    QFileDialog fd(this,
+                   tr("Select torrent"),
+                   settingsPage->getLastBrowsedDir(),
+                   tr("Torrents (*.torrent)"));
+
+    fd.setOption(QFileDialog::DontUseNativeDialog);
+
     QStringList fileNames = fd.getOpenFileNames();
+    */
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,
+                                                          tr("Select torrent"),
+                                                          settingsPage->getLastBrowsedDir(),
+                                                          tr("Torrents (*.torrent)"),
+                                                          nullptr,
+                                                          QFileDialog::DontUseNativeDialog);
+
     if (fileNames.isEmpty()) return;
     settingsPage->setLastBrowsedDir(QFileInfo(fileNames.first()).absolutePath());
     sessionManager->addItems(std::move(fileNames), settingsPage->getDownloadPath());
@@ -574,28 +568,43 @@ void MainWindow::sessionStatisticUpdate(const quint64 &sent, const quint64 &rece
     statisticsPage->updateStats(pair);
 
     ui->btnStatDown->setText(QString::number(downloading));
-    ui->btnStatDown->setToolTip(QString("Downloading %0 torrents (%1 queued)").arg(downloading).arg(queuedDown));
+    ui->btnStatDown->setToolTip(QString(tr("Downloading %0 torrents (%1 queued)")).arg(downloading).arg(queuedDown));
     ui->btnStatUp->setText(QString::number(uploading));
-    ui->btnStatUp->setToolTip(QString("Uploading %0 torrents (%1 queued)").arg(uploading).arg(queuedSeed));
+    ui->btnStatUp->setToolTip(QString(tr("Uploading %0 torrents (%1 queued)")).arg(uploading).arg(queuedSeed));
     ui->btnStatCheck->setText(QString::number(checking));
-    ui->btnStatCheck->setToolTip(QString("Checking %0 torrents").arg(checking));
+    ui->btnStatCheck->setToolTip(QString(tr("Checking %0 torrents")).arg(checking));
     ui->btnStatPause->setText(QString::number(stopped));
-    ui->btnStatPause->setToolTip(QString("%0 torrents stopped").arg(stopped));
+    ui->btnStatPause->setToolTip(QString(tr("%0 torrents stopped")).arg(stopped));
     ui->btnStatError->setText(QString::number(error));
-    ui->btnStatError->setToolTip(QString("%0 torrents with error").arg(error));
+    ui->btnStatError->setToolTip(QString(tr("%0 torrents with error")).arg(error));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QMessageBox::StandardButton resBtn = QMessageBox::question( this, PROJECT,
+/*
+    QMessageBox::StandardButton resBtn = QMessageBox::question( this,
+                                                                PROJECT,
                                                                 tr("Are you sure you want to quit?\n"),
                                                                 QMessageBox::No | QMessageBox::Yes,
                                                                 QMessageBox::Yes);
+*/
+    QMessageBox confirm_question(QMessageBox::Question,
+                                 PROJECT,
+                                 tr("Are you sure you want to quit?"),
+                                 QMessageBox::No | QMessageBox::Yes,
+                                 this);
+
+    confirm_question.setDefaultButton(QMessageBox::Yes);
+    confirm_question.setButtonText(QMessageBox::Yes, tr("Yes"));
+    confirm_question.setButtonText(QMessageBox::No, tr("No"));
+
+    QMessageBox::StandardButton resBtn = static_cast<QMessageBox::StandardButton>(confirm_question.exec());
+
     if (resBtn != QMessageBox::Yes) {
         event->ignore();
     } else {
         qDebug("closing");
-        statusLabel->setText("Saving resume data. Please wait.");
+        statusLabel->setText(tr("Saving resume data. Please wait."));
         writeSettings();
         emit stopSessionManager();
         event->accept();
@@ -653,10 +662,10 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
     QString fileName = event->mimeData()->text();
     QString msg;
     if (fileName.contains(".TORRENT", Qt::CaseInsensitive)) {
-        msg = QString("accepted %0 from drag & drop").arg(fileName);
+        msg = QString(tr("accepted %0 from drag & drop")).arg(fileName);
         event->acceptProposedAction();
     } else {
-        msg = QString("wrong extension in file %0").arg(fileName);
+        msg = QString(tr("wrong extension in file %0")).arg(fileName);
         updateStatusBarLabel(msg);
     }
     qDebug() << msg;
@@ -675,7 +684,7 @@ void MainWindow::fileDropped(const QString& fileName)
     QStringList fileNames = file_without_prefix.split("\n");
     sessionManager->addItems(std::move(fileNames), settingsPage->getDownloadPath());
     ui->btnDownload->released(); // switch to downloadpage
-    updateStatusBarLabel(QString("file %0 added to download").arg(file_without_prefix));
+    updateStatusBarLabel(QString(tr("file %0 added to download")).arg(file_without_prefix));
 }
 
 void MainWindow::clipboardChanged()
@@ -688,7 +697,7 @@ void MainWindow::clipboardChanged()
         QStringList fileNames = clipboardText.split("\n");
         sessionManager->addFromMagnet(std::move(fileNames), settingsPage->getDownloadPath());
         ui->btnDownload->released(); // switch to downloadpage
-        updateStatusBarLabel("file added from magnet");
+        updateStatusBarLabel(tr("file added from magnet"));
     }
 }
 
@@ -698,11 +707,11 @@ void MainWindow::downloadFromSearchPage(const QString& magnet)
     fileNames << magnet;
     sessionManager->addFromMagnet(std::move(fileNames), settingsPage->getDownloadPath());
     ui->btnDownload->released(); // switch to downloadpage
-    updateStatusBarLabel("file added from search page");
+    updateStatusBarLabel(tr("file added from search page"));
 }
 
 void MainWindow::on_btnPatreon_released()
 {
-    QString link = "https://www.patreon.com/bePatron?u=3133703";
+    static const QString link("https://www.patreon.com/bePatron?u=3133703");
     QDesktopServices::openUrl(QUrl(link));
 }

@@ -8,7 +8,7 @@ tsuTreeWidget::tsuTreeWidget(QWidget *parent):
     this->setStyleSheet("background-color: rgb(23, 23, 23);");
 
     p_headerItem = new QTreeWidgetItem();
-    p_headerItem->setText(0,QString("File Name"));
+    p_headerItem->setText(0,QString(tr("File Name")));
 //    p_headerItem->setText(1,QString("Size (Bytes)"));
 //    p_headerItem->setText(1,QString("Path"));
     p_headerItem->setTextColor(0, Qt::black);

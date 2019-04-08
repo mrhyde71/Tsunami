@@ -36,13 +36,13 @@ downloadwindow::downloadwindow(QWidget *parent) :
     ui->graphicsView->setInteractive(true);
 
     p_contextMenu = new QMenu(this);
-    p_contextMenu->addAction("Select all", this, SLOT(selectAll()));
-    p_contextMenu->addAction("Deselect all", this, SLOT(deselectAll()));
+    p_contextMenu->addAction(tr("Select all"), this, SLOT(selectAll()));
+    p_contextMenu->addAction(tr("Deselect all"), this, SLOT(deselectAll()));
     p_contextMenu->addSeparator();
-    p_contextMenu->addAction("Pause selected", this, SLOT(pauseSelected()));
-    p_contextMenu->addAction("Resume selected", this, SLOT(resumeSelected()));
+    p_contextMenu->addAction(tr("Pause selected"), this, SLOT(pauseSelected()));
+    p_contextMenu->addAction(tr("Resume selected"), this, SLOT(resumeSelected()));
     p_contextMenu->addSeparator();
-    p_contextMenu->addAction("Delete selected...", this, SLOT(deleteSelected()));
+    p_contextMenu->addAction(tr("Delete selected..."), this, SLOT(deleteSelected()));
 
     redrawItemsPosition();
 
@@ -188,14 +188,14 @@ void downloadwindow::pauseSelected()
     }
 
     if (listSelected.length() == 0) {
-        emit sendMessageToStatusBar(QString("No item selected"));
+        emit sendMessageToStatusBar(QString(tr("No item selected")));
         return;
     }
 
     foreach (tsuItem* item, listSelected) {
         item->executePause();
     }
-    emit sendMessageToStatusBar(QString("%0 torrent paused").arg(listSelected.length()));
+    emit sendMessageToStatusBar(QString(tr("%0 torrent(s) paused")).arg(listSelected.length()));
 }
 
 void downloadwindow::resumeSelected()
@@ -209,14 +209,14 @@ void downloadwindow::resumeSelected()
     }
 
     if (listSelected.length() == 0) {
-        emit sendMessageToStatusBar(QString("No item selected"));
+        emit sendMessageToStatusBar(QString(tr("No item selected")));
         return;
     }
 
     foreach (tsuItem* item, listSelected) {
         item->executeResume();
     }
-    emit sendMessageToStatusBar(QString("%0 torrent resumed").arg(listSelected.length()));
+    emit sendMessageToStatusBar(QString(tr("%0 torrent(s) resumed")).arg(listSelected.length()));
 }
 
 void downloadwindow::deleteSelected()
@@ -230,16 +230,18 @@ void downloadwindow::deleteSelected()
     }
 
     if (listSelected.length() == 0) {
-        emit sendMessageToStatusBar(QString("No item selected"));
+        emit sendMessageToStatusBar(QString(tr("No item selected")));
         return;
     }
 
     QMessageBox mbox;
-    QString msg = QString("<center>Do you really want to cancel <b>%0</b> torrents from download?</center>").arg(listSelected.length());
+    QString msg = QString(tr("<center>Do you really want to cancel <b>%0</b> torrents from download?</center>")).arg(listSelected.length());
     mbox.setText(msg);
     mbox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
-    mbox.addButton("Yes and delete files too", QMessageBox::YesRole);
+    mbox.addButton(tr("Yes and delete files too"), QMessageBox::YesRole);
+    mbox.setButtonText(QMessageBox::Yes, tr("Yes"));
+    mbox.setButtonText(QMessageBox::No, tr("No"));
 
     bool proceedWithCancel = false;
     bool cancelFilesOnDelete = false;
@@ -264,7 +266,7 @@ void downloadwindow::deleteSelected()
         }
         qInfo() << QString("requested remove for %0 torrents").arg(listSelected.length());
     }
-    emit sendMessageToStatusBar(QString("%0 torrent removed").arg(listSelected.length()));
+    emit sendMessageToStatusBar(QString(tr("%0 torrent(s) removed")).arg(listSelected.length()));
 
 }
 

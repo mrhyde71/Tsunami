@@ -179,6 +179,116 @@ void logMessageHandler(QtMsgType type, const QMessageLogContext & context, const
     }
 }
 
+void getTranslators(int language_index, QTranslator& tr_qt, QTranslator& tr_qtbase, QTranslator& tr_tsunami)
+{
+    QString qt_translations_folder = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+
+    qDebug() << QString("Requested language index %0, translation folder is %1").arg(language_index).arg(qt_translations_folder);
+
+    bool bResult {};
+    switch(language_index)
+    {
+    case 0: // english
+        qDebug() << "Loading english translations...";
+        bResult = tr_qt.load(QLocale::English, "qt", "_", qt_translations_folder);
+        if (bResult) {
+            qDebug("qt_ English load OK");
+            bResult = QApplication::installTranslator(&tr_qt);
+            if (bResult) {
+                qDebug("qt_ English install OK");
+            } else {
+                qDebug("qt_ English install FAILED");
+            }
+        } else {
+            qDebug("qt_ English load FAILED");
+        }
+
+        bResult = tr_qtbase.load(QLocale::English, "qtbase", "_", qt_translations_folder);
+        if (bResult) {
+            qDebug("qtbase_ English load OK");
+            bResult = QApplication::installTranslator(&tr_qtbase);
+            if (bResult) {
+                qDebug("qtbase English install OK");
+            } else {
+                qDebug("qtbase English install FAILED");
+            }
+        } else {
+            qDebug("qtbase_ English load FAILED");
+        }
+
+        /*
+        bResult = tr_tsunami.load(":/languages/italian.qm");
+        if (bResult) {
+            bResult = QApplication::installTranslator(&tr_tsunami);
+        }
+        */
+    break;
+
+    case 1: // italian
+        qDebug() << "Loading italian translations...";
+        bResult = tr_qt.load(QLocale::Italian, "qt", "_", qt_translations_folder);
+        // bResult = tr_qt.load("qt_it", qt_translations_folder);
+        if (bResult) {
+            qDebug("qt_ Italian load OK");
+            bResult = QApplication::installTranslator(&tr_qt);
+            if (bResult) {
+                qDebug("qt_ Italian install OK");
+            } else {
+                qDebug("qt_ Italian install FAILED");
+            }
+        } else {
+            qDebug("qt_ Italian load FAILED");
+        }
+
+        bResult = tr_qtbase.load(QLocale::Italian, "qtbase", "_", qt_translations_folder);
+        if (bResult) {
+            qDebug("qtbase_ Italian load OK");
+            bResult = QApplication::installTranslator(&tr_qtbase);
+            if (bResult) {
+                qDebug("qtbase Italian install OK");
+            } else {
+                qDebug("qtbase Italian install FAILED");
+            }
+        } else {
+            qDebug("qtbase_ Italian load FAILED");
+        }
+
+#if defined(Q_OS_MAC)
+        bResult = tr_tsunami.load("italian.qm", qt_translations_folder);
+#else
+        bResult = tr_tsunami.load(":/languages/italian.qm");
+#endif
+        if (bResult) {
+            bResult = QApplication::installTranslator(&tr_tsunami);
+        }
+    break;
+
+    default:
+        qDebug() << QString("Loading default (%0) translations...").arg(QLocale::system().name());
+        bResult = tr_qt.load(QLocale::system(), "qt", "_", qt_translations_folder);
+        if (bResult) {
+            bResult = QApplication::installTranslator(&tr_qt);
+        }
+
+        bResult = tr_qtbase.load(QLocale::system(), "qtbase", "_", qt_translations_folder);
+        if (bResult) {
+            bResult = QApplication::installTranslator(&tr_qtbase);
+        }
+
+        if (QLocale::system().language() == QLocale::Italian) {            
+#if defined(Q_OS_MAC)
+            bResult = tr_tsunami.load("italian.qm", qt_translations_folder);
+#else
+            bResult = tr_tsunami.load(":/languages/italian.qm");
+#endif
+            if (bResult) {
+                bResult = QApplication::installTranslator(&tr_tsunami);
+            }
+        }
+        break;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -204,13 +314,32 @@ int main(int argc, char *argv[])
     // https://stackoverflow.com/questions/4954140/how-to-redirect-qdebug-qwarning-qcritical-etc-output
     qInstallMessageHandler(logMessageHandler);
 
-    QApplication::setOrganizationDomain(QStringLiteral(APP_ORGANIZATION_DOMAIN));
-    QApplication::setApplicationName(QStringLiteral(APP_PROJECT_NAME));
+    qApp->setOrganizationDomain(QStringLiteral(APP_ORGANIZATION_DOMAIN));
+    qApp->setApplicationName(QStringLiteral(APP_PROJECT_NAME));
+    qApp->setApplicationVersion(APP_VERSION);
 
     QString filePath = QString("%0/%1.ini").arg(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
-                                           .arg(QStringLiteral(APP_PROJECT_NAME));
+                                           .arg(qApp->applicationName());
     filePath = QDir::toNativeSeparators(filePath);
     a.setProperty("iniFilePath", filePath); // QApplication property are application wide qApp->property("")
+
+
+    // we need to create translator instance here so also strings/messages of "updatemanager" can be transalted (if needed)
+    // NOTE: system messages since QT 5.x are in more files, so we have a qt_SOMETHING and a qtbase_SOMETHING
+    // The following code is based on https://stackoverflow.com/questions/31533019/how-to-translate-the-buttons-in-qmessagebox
+
+    QSettings settings(filePath, QSettings::IniFormat);
+    int currentLanguage = settings.value("Language", 0).toInt();
+
+
+    QTranslator tr_qt;       //!< translator for system messages stored in qt_LANGCODE
+    QTranslator tr_qtbase;   //!< translator for system messages and system dialogs stored in qtbase_LANGCODE
+    QTranslator tr_tsunami;  //!< translator for Tsunami strings
+
+    getTranslators(currentLanguage, tr_qt, tr_qtbase, tr_tsunami);
+
+
+    QString translations_folder = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
     QPointer<updatemanager> um = new updatemanager();
 
@@ -222,7 +351,6 @@ int main(int argc, char *argv[])
     }
 
     if (um->appNeedRestart()) {
-        QSettings settings(filePath, QSettings::IniFormat);
         settings.setValue("justUpdated", true);
         qDebug("restarting");
 
@@ -240,6 +368,7 @@ int main(int argc, char *argv[])
 
     qDebug("showing main window");
     MainWindow w;
+    w.setWindowTitle(getProjectTitle());
     w.show();
     return a.exec();
 

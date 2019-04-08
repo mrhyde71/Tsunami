@@ -16,6 +16,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # Libtorrent Defines
 DEFINES += TORRENT_NO_DEPRECATE
 
+# Translations (currently only italian)
+TRANSLATIONS += italian.ts
+
 # EXTRA DEFINITIONS
 include(src/version.pri)
 include(src/utility.pri)
@@ -67,11 +70,15 @@ macx{
     # library files of boost
     BOOST_LIBS = /Users/mrhyde/TSUNAMI/myboost/lib
 
+    # LIBTORRENT_VER = 1_2_0
+    LIBTORRENT_VER = 1_1_12
+
+    LIBTORRRENT_SOURCES = /Users/mrhyde/TSUNAMI/src/libtorrent-libtorrent_$$LIBTORRENT_VER
     # Now some variables to find libtorrent objects needed for building process
     # header of libtorrent
-    LIBTORRENT_INCLUDES = /Users/mrhyde/TSUNAMI/src/libtorrent-libtorrent_1_1_11/include
+    LIBTORRENT_INCLUDES = /Users/mrhyde/TSUNAMI/src/libtorrent-libtorrent_$$LIBTORRENT_VER/include
     # library files of boost
-    LIBTORRENT_LIBS = /Users/mrhyde/TSUNAMI/src/libtorrent-libtorrent_1_1_11/bin/darwin-4.2.1/release/deprecated-functions-off/link-static/threading-multi
+    LIBTORRENT_LIBS = /Users/mrhyde/TSUNAMI/src/libtorrent-libtorrent_$$LIBTORRENT_VER/bin/darwin-4.2.1/release/deprecated-functions-off/link-static/threading-multi
 
 
 
@@ -99,6 +106,17 @@ macx{
     boost_frameworks.path = Contents/Frameworks
     boost_frameworks.files = $${BOOST_LIBS}/libboost_system.dylib
     QMAKE_BUNDLE_DATA += boost_frameworks
+
+    # Qt translations
+    qttranslations.path = Contents/translations
+    qttranslations.files = \
+        $$[QT_INSTALL_TRANSLATIONS]/qt_it.qm $$[QT_INSTALL_TRANSLATIONS]/qtbase_it.qm \
+        $$[QT_INSTALL_TRANSLATIONS]/qt_en.qm $$[QT_INSTALL_TRANSLATIONS]/qtbase_en.qm \
+        $$[QT_INSTALL_TRANSLATIONS]/qt_uk.qm $$[QT_INSTALL_TRANSLATIONS]/qtbase_uk.qm \
+        resources/languages/italian.qm
+
+    QMAKE_BUNDLE_DATA += qttranslations
+
 
     # VLC-QT framewors
     # To install just the required files of VLC-Qt frameworks (= skip Header) I use a silly script
@@ -179,6 +197,10 @@ macx{
     # Add libtorrent libraries to linker flags
     LIBS += -L$${LIBTORRENT_LIBS} -ltorrent
 
+    # Exlude boost and libtorrent from translation scan executed by lupdate (Qt tools for translations)
+    TR_EXCLUDE += $${BOOST_INCLUDES}/* $${LIBTORRENT_INCLUDES}/*
+
+
     # NOTE: to test it remember to set your build settings for DYLD_FRAMEWORK_PATH and DYLD_LIBRARY_PATH
     # For example:
     # - click on "Projects"
@@ -243,4 +265,7 @@ QMAKE_RESOURCE_FLAGS += -compress 9 -threshold 5
 RESOURCES += \
     resources/resources.qrc \
     resources/translations.qrc
+
+DEFINES += APP_VERSION=\\\"$$PROJECT_VERSION\\\"
+
 

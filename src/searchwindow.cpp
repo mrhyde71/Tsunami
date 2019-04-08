@@ -102,7 +102,7 @@ void searchwindow::providerAdded(const tsuProvider *item)
         // enable search
         ui->btnSearch->setEnabled(true);
     }
-    ui->lblResultsCount->setText(QString("%0 providers loaded").arg(p_crawler->getProvidersCount()));
+    ui->lblResultsCount->setText(QString(tr("%0 providers loaded")).arg(p_crawler->getProvidersCount()));
 }
 
 void searchwindow::providerNotValid(const QString& providerName)
@@ -112,7 +112,7 @@ void searchwindow::providerNotValid(const QString& providerName)
         // disable search
         ui->btnSearch->setEnabled(false);
     }
-    ui->lblResultsCount->setText(QString("%0 providers loaded").arg(p_crawler->getProvidersCount()));
+    ui->lblResultsCount->setText(QString(tr("%0 providers loaded")).arg(p_crawler->getProvidersCount()));
 }
 
 void searchwindow::itemFound(const tsuProvider::searchItem item)
@@ -299,9 +299,7 @@ void searchwindow::finishedSearch(int itemsFound, qint64 elapsed /* milliseconds
     setSearchButtonToSearch();
     ui->txtSearch->setEnabled(true);
     ui->tableResults->setSortingEnabled(true);
-    QString msg = QString("%0 result(s) in %1 second(s) using %2 provider(s)").arg(itemsFound)
-                            .arg((static_cast<int>(elapsed)/1000))
-                            .arg(p_crawler->getProvidersCount());
+    QString msg = QString(tr("%0 result(s) in %1 second(s) using %2 provider(s)")).arg(itemsFound, (static_cast<int>(elapsed)/1000), p_crawler->getProvidersCount());
     ui->lblResultsCount->setText(msg);
     qInfo() << msg;
     ui->tableResults->setColumnWidth(tableColumns::OpenLink, 22);
@@ -403,7 +401,7 @@ void searchwindow::on_btnSearch_released()
         int resultsWanted = 50;//ui->spinResultsWanted->value();
         tsuProvider::sortRules sort = tsuProvider::sortRules::seeds_d;// (tsuProvider::sortRules)ui->cmbSort->currentData().toInt();
 
-        ui->lblResultsCount->setText(QString("Searching '%0'...").arg(textToSearch));
+        ui->lblResultsCount->setText(QString(tr("Searching '%0'...")).arg(textToSearch));
 
         p_crawler->search(textToSearch, wantedCategory, resultsWanted, sort);
 

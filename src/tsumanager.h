@@ -67,7 +67,7 @@ signals:
     void web_NeedSearch(const QString textToSearch, const int category);
 
 public slots:
-    void getCancelRequest(const std::string &hash, const bool deleteFilesToo);
+    void getCancelRequest(const std::string &hash, bool deleteFilesToo);
     void getPauseRequest(const std::string &hash);
     void getResumeRequest(const std::string &hash);
     void refreshSettings();
@@ -76,11 +76,11 @@ public slots:
 
     // request from www
     void web_requestedSendTorrentList();
-    void web_requestedCancel(const QString& hash, const bool deleteFilesToo);
+    void web_requestedCancel(const QString& hash, bool deleteFilesToo);
     void web_requestedPause(const QString& hash);
     void web_requestedResume(const QString& hash);
     void web_requestedFileList(const QString& hash);
-    void web_requestedSearch(const QString& textToSearch, const int category);
+    void web_requestedSearch(const QString& textToSearch, int category);
     void web_itemFound(const tsuProvider::searchItem item);
     void web_finishedSearch(int itemsFound, qint64 elapsed, int providersCount);
     void web_fileUploaded(const QByteArray& buffer, const QString& fileName);

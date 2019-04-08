@@ -7,16 +7,18 @@
 
 class tsuTreeWidget : public QTreeWidget
 {
+    Q_OBJECT
+
 public:
     explicit tsuTreeWidget(QWidget* parent);
-    ~tsuTreeWidget();
+    virtual ~tsuTreeWidget();
 
 public slots:
   void showDirectory(QTreeWidgetItem *item, int column);
   void expandDirectory(QTreeWidgetItem *item);
 
 private:
-  QTreeWidgetItem *p_headerItem;
+  QTreeWidgetItem *p_headerItem{};
 
   void loadDriveStructure(const QString& drive);
   void addChildren(QTreeWidgetItem* item, const QString& filePath);
