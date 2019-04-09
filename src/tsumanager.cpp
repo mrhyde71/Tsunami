@@ -1,6 +1,7 @@
 #include "tsumanager.h"
 
 #include <fstream> // needed for std::ofstream
+#include <cmath>   // needed for ceil
 
 int tsuManager::outstanding_resume_data = 0;
 
@@ -139,7 +140,7 @@ void tsuManager::loadSettings(libtorrent::settings_pack &settings)
 
     settings.set_int(libtorrent::settings_pack::int_types::alert_mask, libtorrent::alert::all_categories);
 
-    int availThreads = ceil(QThread::idealThreadCount()/4);
+    int availThreads = static_cast<int>(ceil(0.25 * QThread::idealThreadCount()));
     qDebug() << QString("found %0 ideal thread count, assigning %1 to hash threads").arg(QThread::idealThreadCount()).arg(availThreads);
     settings.set_int(libtorrent::settings_pack::aio_threads, availThreads);
     //    p_session->apply_settings(settings);
@@ -232,13 +233,8 @@ void tsuManager::startManager()
     p_session = QSharedPointer<libtorrent::session>::create(settings);
     setNotify();
 
-#if QT_HAS_INCLUDE(<chrono>) || defined(Q_QDOC)
-    p_timerUpdate->start(p_timerUpdateInterval);
-    p_timerResumeData->start(p_timerResumeDataInterval);
-#else
-    p_timerUpdate->start(static_cast<int>(p_timerUpdateInterval.count()));
-    p_timerResumeData->start(static_cast<int>(p_timerResumeDataInterval.count()));
-#endif
+    p_timerUpdate->start(tsuManager::p_timerUpdateInterval);
+    p_timerResumeData->start(tsuManager::p_timerResumeDataInterval);
 
     if (!QDir(p_tsunamiSessionFolder).exists()) {
         if (QDir().mkpath(p_tsunamiSessionFolder)) {
@@ -466,9 +462,18 @@ void tsuManager::alertsHandler()
             libtorrent::torrent_status const &ts = ata->handle.status();
             statusEnum se = static_cast<statusEnum>(ts.state);
             if (ts.paused && !ts.auto_managed) se = statusEnum::paused;
-            tsuEvents::tsuEvent ev(ata->handle.info_hash().to_string(), ts.name.c_str(), ts.total_done,
-                                   ts.total_upload, ts.download_rate, ts.upload_rate, ts.total_wanted,
-                                   (int)se, ts.progress_ppm, ts.num_seeds, ts.num_peers);
+            tsuEvents::tsuEvent ev(ata->handle.info_hash().to_string(),
+                                   ts.name.c_str(),
+                                   static_cast<uint64_t>(ts.total_done),
+                                   static_cast<uint64_t>(ts.total_upload),
+                                   ts.download_rate,
+                                   ts.upload_rate,
+                                   static_cast<uint64_t>(ts.total_wanted),
+                                   static_cast<int>(se),
+                                   ts.progress_ppm,
+                                   ts.num_seeds,
+                                   ts.num_peers);
+
             emit addFromSessionManager(ev);
 
             if (p_isWebEnabled) {
@@ -536,11 +541,20 @@ void tsuManager::alertsHandler()
             if (sua->status.empty()) { break; }
             for (libtorrent::torrent_status const& s : sua->status)
             {
-                statusEnum se = static_cast<statusEnum>((int)s.state);
+                statusEnum se = static_cast<statusEnum>(s.state);
                 if (s.paused && !s.auto_managed) se = statusEnum::paused;
-                tsuEvents::tsuEvent ev(s.info_hash.to_string(), s.name.c_str(), s.total_done,
-                                       s.total_upload, s.download_rate, s.upload_rate, s.total_wanted,
-                                       (int)se, s.progress_ppm, s.num_seeds, s.num_peers);
+                tsuEvents::tsuEvent ev(s.info_hash.to_string(),
+                                       s.name.c_str(),
+                                       static_cast<uint64_t>(s.total_done),
+                                       static_cast<uint64_t>(s.total_upload),
+                                       s.download_rate,
+                                       s.upload_rate,
+                                       static_cast<uint64_t>(s.total_wanted),
+                                       static_cast<int>(se),
+                                       s.progress_ppm,
+                                       s.num_seeds,
+                                       s.num_peers);
+
                 eventsArray.append(ev);
 
                 if (p_isWebEnabled) {

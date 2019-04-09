@@ -93,10 +93,10 @@ private:
     QString p_tsunamiSessionFolder;
 
     QTimer *p_timerUpdate{};
-    static constexpr std::chrono::milliseconds p_timerUpdateInterval {1 * 1000}; // every second
+    static constexpr int p_timerUpdateInterval {1 * 1000}; // every second (value in milliseconds)
 
     QTimer *p_timerResumeData{};
-    static constexpr std::chrono::milliseconds p_timerResumeDataInterval {10 * 60 * 1000}; // every ten minutes
+    static constexpr int p_timerResumeDataInterval {10 * 60 * 1000}; // every ten minutes (value in milliseconds)
 
     // session stat alert index
     int p_net_recv_bytes{};

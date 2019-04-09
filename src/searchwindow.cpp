@@ -299,7 +299,8 @@ void searchwindow::finishedSearch(int itemsFound, qint64 elapsed /* milliseconds
     setSearchButtonToSearch();
     ui->txtSearch->setEnabled(true);
     ui->tableResults->setSortingEnabled(true);
-    QString msg = QString(tr("%0 result(s) in %1 second(s) using %2 provider(s)")).arg(itemsFound, (static_cast<int>(elapsed)/1000), p_crawler->getProvidersCount());
+    //QString msg = QString(tr("%0 result(s) in %1 second(s) using %2 provider(s)")).arg(itemsFound, (static_cast<int>(elapsed)/1000), p_crawler->getProvidersCount());
+    QString msg = QString(tr("%0 result(s) in %1 second(s) using %2 provider(s)")).arg(itemsFound).arg(static_cast<int>(elapsed)/1000).arg(p_crawler->getProvidersCount());
     ui->lblResultsCount->setText(msg);
     qInfo() << msg;
     ui->tableResults->setColumnWidth(tableColumns::OpenLink, 22);
