@@ -186,8 +186,77 @@ void StaticFileController::service(HttpRequest& request, HttpResponse& response)
     }
 }
 
-void StaticFileController::setContentType(QString fileName, HttpResponse& response) const
+#include <map>        // needed for std::map
+#include <stdexcept>  // needed for std::out_of_range
+
+struct MyQStringNoCaseCompare
 {
+    bool operator() (const QString& a, const QString& b) const
+    {
+        return (a.compare(b, Qt::CaseInsensitive) < 0);
+    }
+};
+
+using contentTypeMap_t = std::map<QString, QByteArray, MyQStringNoCaseCompare>;
+
+void StaticFileController::setContentType(const QString& fileName, HttpResponse& response) const
+{    
+    static const contentTypeMap_t contentType_for_filetype{
+        {".png", "image/png"},
+        {".jpg", "image/jpeg"},
+        {".gif", "image/gif"},
+        {".ico", "image/x-icon"},
+        {".pdf", "application/pdf"},
+        {".css", "text/css"},
+        {".js",  "text/javascript"},
+        {".svg", "image/svg+xml"},
+        {".woff", "font/woff"},
+        {".woff2", "font/woff2"},
+        {".ttf", "application/x-font-ttf"},
+        {".eot", "application/vnd.ms-fontobject"},
+        {".otf", "application/font-otf"},
+    };
+
+    static const contentTypeMap_t contentTypetext_for_filetype{
+        {".txt", "text/plain; charset="},
+        {".html", "text/html; charset="},
+    };
+
+
+    // look for last dot in fileName
+    int postOfLastDot = fileName.lastIndexOf('.');
+    if (postOfLastDot == -1) {
+        // no dot found, no file extension?
+        qWarning() << "StaticFileController: unknown MIME type for filename '" << fileName << "', no file extension?";
+        return;
+    }
+
+    QString candidate_file_extension = fileName.mid(postOfLastDot);
+
+    // look in map to check if known extension
+    try
+    {
+        const QByteArray& content_string = contentType_for_filetype.at(candidate_file_extension);
+        // if here found
+        response.setHeader("Content-Type", content_string);
+    }
+    catch (std::out_of_range)
+    {
+        // if here not found in map, but we need also to try text
+        try
+        {
+            const QByteArray& content_string = contentTypetext_for_filetype.at(candidate_file_extension);
+            // if here found
+            response.setHeader("Content-Type", qPrintable(content_string+encoding));
+
+        }
+        catch (...)
+        {
+            qWarning() << "StaticFileController: unknown MIME type for filename '" << fileName << "'";
+        }
+    }
+
+#if 0
     if (fileName.endsWith(".png"))
     {
         response.setHeader("Content-Type", "image/png");
@@ -253,4 +322,5 @@ void StaticFileController::setContentType(QString fileName, HttpResponse& respon
     {
         qWarning("StaticFileController: unknown MIME type for filename '%s'", qPrintable(fileName));
     }
+#endif
 }

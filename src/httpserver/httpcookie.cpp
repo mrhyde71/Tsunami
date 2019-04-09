@@ -14,7 +14,7 @@ HttpCookie::HttpCookie()
     secure=false;
 }
 
-HttpCookie::HttpCookie(const QByteArray name, const QByteArray value, const int maxAge, const QByteArray path, const QByteArray comment, const QByteArray domain, const bool secure, const bool httpOnly)
+HttpCookie::HttpCookie(const QByteArray& name, const QByteArray& value, const int maxAge, const QByteArray& path, const QByteArray& comment, const QByteArray& domain, const bool secure, const bool httpOnly)
 {
     this->name=name;
     this->value=value;
@@ -27,7 +27,7 @@ HttpCookie::HttpCookie(const QByteArray name, const QByteArray value, const int 
     this->version=1;
 }
 
-HttpCookie::HttpCookie(const QByteArray source)
+HttpCookie::HttpCookie(const QByteArray& source)
 {
     version=1;
     maxAge=0;
@@ -130,22 +130,22 @@ QByteArray HttpCookie::toByteArray() const
     return buffer;
 }
 
-void HttpCookie::setName(const QByteArray name)
+void HttpCookie::setName(const QByteArray& name)
 {
     this->name=name;
 }
 
-void HttpCookie::setValue(const QByteArray value)
+void HttpCookie::setValue(const QByteArray& value)
 {
     this->value=value;
 }
 
-void HttpCookie::setComment(const QByteArray comment)
+void HttpCookie::setComment(const QByteArray& comment)
 {
     this->comment=comment;
 }
 
-void HttpCookie::setDomain(const QByteArray domain)
+void HttpCookie::setDomain(const QByteArray& domain)
 {
     this->domain=domain;
 }
@@ -155,7 +155,7 @@ void HttpCookie::setMaxAge(const int maxAge)
     this->maxAge=maxAge;
 }
 
-void HttpCookie::setPath(const QByteArray path)
+void HttpCookie::setPath(const QByteArray& path)
 {
     this->path=path;
 }
@@ -170,22 +170,22 @@ void HttpCookie::setHttpOnly(const bool httpOnly)
     this->httpOnly=httpOnly;
 }
 
-QByteArray HttpCookie::getName() const
+const QByteArray& HttpCookie::getName() const
 {
     return name;
 }
 
-QByteArray HttpCookie::getValue() const
+const QByteArray& HttpCookie::getValue() const
 {
     return value;
 }
 
-QByteArray HttpCookie::getComment() const
+const QByteArray& HttpCookie::getComment() const
 {
     return comment;
 }
 
-QByteArray HttpCookie::getDomain() const
+const QByteArray& HttpCookie::getDomain() const
 {
     return domain;
 }
@@ -195,7 +195,7 @@ int HttpCookie::getMaxAge() const
     return maxAge;
 }
 
-QByteArray HttpCookie::getPath() const
+const QByteArray& HttpCookie::getPath() const
 {
     return path;
 }

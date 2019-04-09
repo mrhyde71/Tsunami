@@ -13,11 +13,11 @@ using namespace stefanfrings;
 HttpListener::HttpListener(QSettings* settings, HttpRequestHandler* requestHandler, QObject *parent)
     : QTcpServer(parent)
 {
-    Q_ASSERT(settings!=0);
-    Q_ASSERT(requestHandler!=0);
-    pool=NULL;
-    this->settings=settings;
-    this->requestHandler=requestHandler;
+    Q_ASSERT(settings != nullptr);
+    Q_ASSERT(requestHandler != nullptr);
+    pool = nullptr;
+    this->settings = settings;
+    this->requestHandler = requestHandler;
     // Reqister type of socketDescriptor for signal/slot handling
     qRegisterMetaType<tSocketDescriptor>("tSocketDescriptor");
     // Start listening
@@ -56,9 +56,9 @@ void HttpListener::close() {
 #ifdef SUPERVERBOSE
     qDebug("HttpListener: closed");
 #endif
-    if (pool) {
+    if (pool) { // remember that in C++ delete of a nullptr pointer is allowed and safe... A better idea is to use a std::unique_ptr...
         delete pool;
-        pool=NULL;
+        pool = nullptr;
     }
 }
 
@@ -67,7 +67,7 @@ void HttpListener::incomingConnection(tSocketDescriptor socketDescriptor) {
     qDebug("HttpListener: New connection");
 #endif
 
-    HttpConnectionHandler* freeHandler=NULL;
+    HttpConnectionHandler* freeHandler {};
     if (pool)
     {
         freeHandler=pool->getConnectionHandler();

@@ -23,7 +23,7 @@ HttpSession::HttpSession(bool canStore)
     }
     else
     {
-        dataPtr=0;
+        dataPtr=nullptr;
     }
 }
 
@@ -106,7 +106,7 @@ QByteArray HttpSession::getId() const
 }
 
 bool HttpSession::isNull() const {
-    return dataPtr==0;
+    return (dataPtr == nullptr);
 }
 
 void HttpSession::set(const QByteArray& key, const QVariant& value)

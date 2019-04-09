@@ -78,13 +78,13 @@ protected:
 private:
 
     /** Configuration settings for the HTTP server */
-    QSettings* settings;
+    QSettings* settings{};
 
     /** Point to the reuqest handler which processes all HTTP requests */
-    HttpRequestHandler* requestHandler;
+    HttpRequestHandler* requestHandler{};
 
     /** Pool of connection handlers */
-    HttpConnectionHandlerPool* pool;
+    HttpConnectionHandlerPool* pool{};
 
 signals:
 
